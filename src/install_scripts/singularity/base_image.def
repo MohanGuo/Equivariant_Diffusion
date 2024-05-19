@@ -1,0 +1,65 @@
+Bootstrap: docker
+From: ubuntu:20.04
+
+%post
+    # Update and upgrade the system
+    apt-get update && apt-get upgrade -y
+
+    # Set timezone
+    TZ=Europe/Amsterdam
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+    apt update
+    apt-get install -y tzdata
+
+    echo 'keyboard-configuration keyboard-configuration/layoutcode string us' | debconf-set-selections
+    apt-get update && apt-get install -y keyboard-configuration
+
+    # Install system dependencies
+    apt-get install -y \
+        software-properties-common \
+        wget \
+        curl \
+        git \
+        build-essential \
+        libopenblas-dev \
+        libbz2-dev \
+        libcairo2-dev \
+        libfreetype6-dev \
+        libjpeg-dev \
+        libpng-dev \
+        libtiff-dev \
+        libglib2.0-dev \
+        libsdl1.2-dev \
+        libnotify-dev \
+        libgnutls28-dev \
+        libxext-dev \
+        libxrender-dev \
+        libxinerama-dev \
+        dbus-x11 \
+        pulseaudio \
+        fonts-dejavu \
+        gfortran \
+        libblas-dev \
+        liblapack-dev \
+        libffi-dev \
+        libssl-dev \
+        libexpat1-dev
+
+    # Python installation
+    apt-get install -y python3-pip python3-dev
+
+    # Symlink python
+    ln -s /usr/bin/python3 /usr/bin/python
+
+    # Install Python packages with pip
+    pip install imageio \
+                numpy \
+                scipy \
+                torch \
+                torchvision \
+                tqdm \
+                wandb \
+                matplotlib
+
+    # Cleanup
+    apt-get clean && rm -rf /var/lib/apt/lists/*
