@@ -7,7 +7,7 @@ This repository introduces a JAX implementation of the E(3) Equivariant Diffusio
 
 ### Consistency Model Advancement
 In a significant departure from the original model's diffusion-based approach, this implementation employs a consistency model to streamline molecular generation. This shift is aimed at accelerating the training and inference phases, effectively reducing computational demands while maintaining high fidelity in the molecular structures produced. The consistency model provides a robust alternative that optimizes the generation process, making it faster and more resource-efficient.
-
+NOTE: This is still WIP and we decided not to publish code for this yet since it is currently a pytorch modification  to the original EDM repo and would interfere with the JAX code structure. However, we will add this by Thursday and all relevant theory and explanations are already in the blogpost.
 
 ## Installation
 
