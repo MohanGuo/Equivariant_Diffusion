@@ -1,4 +1,13 @@
 
+.DS_store
+*.def
+*.png
+*.jpeg
+*.zip
+*.pickle
+*.pyc
+__pycache__
+
 run_qm9.sh
 e3_diffusion_for_molecules-main/parameters.txt
 e3_diffusion_for_molecules-main/grads.txt

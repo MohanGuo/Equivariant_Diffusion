@@ -22,6 +22,7 @@ class EGNN_dynamics_QM9(nn.Module):
     sin_embedding: bool = False
     normalization_factor: int = 100
     aggregation_method: str = 'sum'
+    use_context=True
 
     def setup(self):
         if self.mode == 'egnn_dynamics':
@@ -40,9 +41,10 @@ class EGNN_dynamics_QM9(nn.Module):
 
         # self._edges_dict = {}
         self.edges_store = self.variable('cache', 'edges', lambda: {})
+        
 
 
-    def __call__(self, t, xh, node_mask, edge_mask, context=None):
+    def __call__(self, t, xh, node_mask, edge_mask, context):
         bs, n_nodes, dims = xh.shape
         h_dims = dims - self.n_dims
         edges = self.get_adj_matrix(n_nodes, bs)
@@ -54,55 +56,42 @@ class EGNN_dynamics_QM9(nn.Module):
         xh = xh.reshape((bs * n_nodes, dims)) * node_mask
         x = xh[:, :self.n_dims]
 
-        if h_dims == 0:
-            h = jnp.ones((bs * n_nodes, 1))
-        else:
-            h = xh[:, self.n_dims:]
+        # print("h_dims is ", h_dims)
+
+        # if h_dims == 0:
+        #     h = jnp.ones((bs * n_nodes, 1))
+        # else:
+        h = xh[:, self.n_dims:]
 
 
         if self.condition_time:
+
+            # print("t shape is ",jnp.prod(jnp.array(t.shape)))
             # if jnp.prod(t.shape) == 1:
-            if jnp.prod(jnp.array(t.shape)) == 1:
-                # t is the same for all elements in batch.
-                # h_time = torch.empty_like(h[:, 0:1]).fill_(t.item())
-                h_time = jnp.full_like(h[:, 0:1], fill_value=t.item())
-            else:
+            # if jnp.prod(jnp.array(t.shape)) == 1:
+            #     # t is the same for all elements in batch.
+            #     # h_time = torch.empty_like(h[:, 0:1]).fill_(t.item())
+            #     h_time = jnp.full_like(h[:, 0:1], fill_value=t.item())
+            # else:
                 # t is different over the batch dimension.
                 # h_time = t.view(bs, 1).repeat(1, n_nodes)
                 # h_time = h_time.view(bs * n_nodes, 1)
-                h_time = jnp.repeat(t.reshape(bs, 1), n_nodes, axis=1).reshape(bs * n_nodes, 1)
+            h_time = jnp.repeat(t.reshape(bs, 1), n_nodes, axis=1).reshape(bs * n_nodes, 1)
             # h = torch.cat([h, h_time], dim=1)
             h = jnp.concatenate([h, h_time], axis=1)
 
 
-        if context is not None:
+        if self.use_context:
             # We're conditioning, awesome!
             context = context.reshape(bs*n_nodes, self.context_node_nf)
             # h = torch.cat([h, context], dim=1)
             h = jnp.concatenate([h, context], axis=-1)
 
-        if self.mode == 'egnn_dynamics':
-            # h_final, x_final = self.egnn(h, x, edges, node_mask=node_mask, edge_mask=edge_mask)
-            # vel = (x_final - x) * node_mask  # This masking operation is redundant but just in case
 
-            # #TODO
-            h_final, x_final = self.egnn(h, x, edges, node_mask, edge_mask)
-            vel = (x_final - x) * node_mask
-        # elif self.mode == 'gnn_dynamics':
-        #     xh = torch.cat([x, h], dim=1)
-        #     output = self.gnn(xh, edges, node_mask=node_mask)
-        #     vel = output[:, 0:3] * node_mask
-        #     h_final = output[:, 3:]
+        h_final, x_final = self.egnn(h, x, edges, node_mask, edge_mask)
+        vel = (x_final - x) * node_mask
 
-        #     #TODO
-        #     xh = jnp.concatenate([x, h], axis=-1)
-        #     output = network(xh, edges, node_mask, edge_mask)
-        #     vel = output[:, :, 0:3] * node_mask
-        #     h_final = output[:, :, 3:]
-        else:
-            raise Exception("Wrong mode %s" % self.mode)
-
-        if context is not None:
+        if self.use_context:
             # Slice off context size:
             h_final = h_final[:, :-self.context_node_nf]
 
@@ -112,24 +101,25 @@ class EGNN_dynamics_QM9(nn.Module):
 
         vel = vel.reshape(bs, n_nodes, -1)
 
-        if jnp.any(jnp.isnan(vel)):
-            print('Warning: detected nan, resetting output to zero.')
-            vel = jnp.zeros_like(vel)
+        # if jnp.any(jnp.isnan(vel)):
+        #     print('Warning: detected nan, resetting output to zero.')
+        # vel = jnp.zeros_like(vel)
 
-        if node_mask is None:
-            vel = remove_mean(vel)
-        else:
-            vel = remove_mean_with_mask(vel, node_mask.reshape(bs, n_nodes, 1))
+        # if node_mask is None:
+        #     vel = remove_mean(vel)
+        # else:
+        vel = remove_mean_with_mask(vel, node_mask.reshape(bs, n_nodes, 1))
 
 
-        if h_dims == 0:
-            return vel
-        else:
-            h_final = h_final.reshape(bs, n_nodes, -1)
-            return jnp.concatenate([vel, h_final], axis=2)
+        # if h_dims == 0:
+        #     return vel
+        # else:
+        h_final = h_final.reshape(bs, n_nodes, -1)
+        return jnp.concatenate([vel, h_final], axis=2)
 
     #directed graph?
     def get_adj_matrix(self, n_nodes, batch_size):
+        
         edges_dict = self.edges_store.value
         if n_nodes not in edges_dict:
             edges_dict[n_nodes] = {}

@@ -4,6 +4,3 @@ conda install -c conda-forge matplotlib -n equi_diff
 conda install jaxlib=*=*cuda* jax cuda-nvcc -c conda-forge -c nvidia
 conda install conda-forge::imageio
 conda install pytorch::pytorch -n equi_diff
-
-pip install optax flax
-pip install wandb

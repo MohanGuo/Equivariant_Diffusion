@@ -1,5 +1,17 @@
 import torch
+from os.path import join, abspath
+import numpy as np
+# import orbax
 
+import jax.numpy as jnp
+
+
+# def get_checkpoint_info(args):
+#     ckpt_path=abspath('outputs/'+args.exp_name+'/checkpoint_manager')
+#     orbax_checkpointer = orbax.checkpoint.PyTreeCheckpointer() 
+#     options = orbax.checkpoint.CheckpointManagerOptions(max_to_keep=2, create=True)
+#     ckpt_mngr = orbax.checkpoint.CheckpointManager(ckpt_path, orbax_checkpointer, options)        
+#     return ckpt_mngr, ckpt_path
 
 def compute_mean_mad(dataloaders, properties, dataset_name):
     if dataset_name == 'qm9':
@@ -53,7 +65,8 @@ def preprocess_input(one_hot, charges, charge_power, charge_scale, device):
     return atom_scalars
 
 
-def prepare_context(conditioning, minibatch, property_norms):
+def prepare_context(conditioning, jax_minibatch, property_norms):
+    minibatch={key: torch.from_numpy(np.copy(np.asarray(value))) for key, value in jax_minibatch.items()}
     batch_size, n_nodes, _ = minibatch['positions'].size()
     node_mask = minibatch['atom_mask'].unsqueeze(2)
     context_node_nf = 0
@@ -86,10 +99,10 @@ def prepare_context(conditioning, minibatch, property_norms):
     # Mask disabled nodes!
     context = context * node_mask
     assert context.size(2) == context_node_nf
+    context=jnp.asarray(context.data.cpu())
     return context
 
 
-import jax.numpy as jnp
 
 
 def prepare_context_jax(conditioning, minibatch, property_norms):

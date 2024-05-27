@@ -1,4 +1,5 @@
 import torch
+import jax.numpy as jnp
 
 
 def batch_stack(props):
@@ -100,4 +101,7 @@ class PreprocessQM9:
             batch['charges'] = batch['charges'].unsqueeze(2)
         else:
             batch['charges'] = torch.zeros(0)
+
+
+        batch={key: jnp.asarray(value.data.cpu()) for key, value in batch.items()}
         return batch

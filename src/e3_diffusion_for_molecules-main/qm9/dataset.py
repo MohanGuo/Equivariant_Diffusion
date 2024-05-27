@@ -1,8 +1,11 @@
 from torch.utils.data import DataLoader
+#import  jax_dataloader as jdl
+
 from qm9.data.args import init_argparse
 from qm9.data.collate import PreprocessQM9
 from qm9.data.utils import initialize_datasets
 import os
+import jax.numpy as jnp
 
 
 def retrieve_dataloaders(cfg):
@@ -33,8 +36,19 @@ def retrieve_dataloaders(cfg):
                                          batch_size=batch_size,
                                          shuffle=args.shuffle if (split == 'train') else False,
                                          num_workers=num_workers,
-                                         collate_fn=preprocess.collate_fn)
+                                         collate_fn=preprocess.collate_fn, drop_last=True)
+
                              for split, dataset in datasets.items()}
+        # train_dataloader = dataloaders["train"]
+        # all_data=[]
+        # for _,batch in enumerate(train_dataloader):
+        #     jnp_batch={key: jnp.asarray(value.data.cpu()) for key, value in batch.items()}
+        #     all_data.append(jnp_batch)
+        # all_data_jnp=jdl.ArrayDataset(all_data)
+        # dataloader = jdl.DataLoader(all_data_jnp)
+        # print("made dataloader!!")
+
+
     elif 'geom' in cfg.dataset:
         import build_geom_dataset
         from configs.datasets_config import get_dataset_info

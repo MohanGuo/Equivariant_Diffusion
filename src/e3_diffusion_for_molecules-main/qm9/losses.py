@@ -10,57 +10,46 @@ def sum_except_batch(x):
 def assert_correctly_masked(variable, node_mask):
     assert jnp.abs(variable * (1 - node_mask)).sum().item() < 1e-8
 
+@jax.jit
+def compute_loss_and_nll_train(rng, state, params, log_pN, x, h_int,h_cat, node_mask, edge_mask, context):
 
-def compute_loss_and_nll(rng, args, state, params, nodes_dist, x, h, node_mask, edge_mask, context, training):
-    bs, n_nodes, n_dims = jnp.shape(x)
+    # print("\n\n\n\n\n\n\n------------------ New compute loss")
+    # print("loss shape x",x.shape)
+    # print("loss shape h_int", h_int.shape)
+    # print("loss shape h_cat",h_cat.shape)
+    # print("loss shape node_mask",node_mask.shape)
+    # print("loss shape edge_mask", edge_mask.shape)
+    # print("loss shape context",context.shape)
 
-    # counter=1
-    # if(counter<1):
-    #     print("hack way to initialize!")
-    #     model.setup2()
-    
+    training=True
+    h={"integer":h_int, "categorical":h_cat}
+    bs, n_nodes, n_dims = jnp.shape(x) 
 
-    if args.probabilistic_model == 'diffusion':
-        # rng, inp_rng, init_rng = jax.random.split(rng, 3)
 
-        
+    assert(n_dims==3)
+    assert(bs==64)
+    #bs is always 64
+    #n_nodes varies
+    #n_dims is always 3
 
-        
-        edge_mask = jnp.reshape(edge_mask, (bs, n_nodes * n_nodes))
+    edge_mask = jnp.reshape(edge_mask, (bs, n_nodes * n_nodes))
+    nll = state.apply_fn(params, rng, x, h, node_mask, edge_mask, context, training)
+    nll = nll - log_pN
+    # Average over batch.
+    nll = nll.mean(0)
+    reg_term = jnp.asarray([0.])
+    mean_abs_z = 0.
+    return nll, reg_term, mean_abs_z
 
-        assert_correctly_masked(x, node_mask)
-
-        # Here x is a position tensor, and h is a dictionary with keys
-        # 'categorical' and 'integer'.
-        #x is tensor of size x shape (64, 25, 3)
-        # print("x shape",x.shape)
-        # print("h.keys",h.keys())
-        # print("h.keys",h.keys())
-        
-        #node_mask is (64, 25, 1)
-        #edge_mask is (64, 625)
-        # print("node_mask shape",node_mask.shape)
-
-        
-        # print("edge_mask shape",edge_mask.shape)
-        
-        # nll = model.apply(rng, params, x, h, node_mask, edge_mask, context)
-        nll = state.apply_fn(params, rng, args, x, h, node_mask, edge_mask, context, training)
-        # nll = generative_model(x, h, node_mask, edge_mask, context)
-
-        N = node_mask.squeeze(2).sum(1).astype(jnp.float32)
-
-        log_pN = nodes_dist.log_prob(N)
-
-        assert nll.shape == log_pN.shape
-        nll = nll - log_pN
-
-        # Average over batch.
-        nll = nll.mean(0)
-
-        reg_term = jnp.asarray([0.])
-        mean_abs_z = 0.
-    else:
-        raise ValueError(args.probabilistic_model)
-
+def compute_loss_and_nll_test(rng, state, params, log_pN, x, h_int,h_cat, node_mask, edge_mask, context):
+    training=False
+    h={"integer":h_int, "categorical":h_cat}
+    bs, n_nodes, n_dims = jnp.shape(x)     
+    edge_mask = jnp.reshape(edge_mask, (bs, n_nodes * n_nodes))
+    nll = state.apply_fn(params, rng, x, h, node_mask, edge_mask, context, training)
+    nll = nll - log_pN
+    # Average over batch.
+    nll = nll.mean(0)
+    reg_term = jnp.asarray([0.])
+    mean_abs_z = 0.
     return nll, reg_term, mean_abs_z

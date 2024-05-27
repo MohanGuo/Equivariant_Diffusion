@@ -31,10 +31,13 @@ def remove_mean(x):
 
 
 
+# (jnp.abs((x * (1 - node_mask)))).sum()
+#so, node_mask=1 means the item should be masked
+#the hypothesis is, if we pad with 
 
 def remove_mean_with_mask(x, node_mask):
     masked_max_abs_value = (jnp.abs((x * (1 - node_mask)))).sum()
-    assert masked_max_abs_value < 1e-5, f'Error {masked_max_abs_value} too high'
+    #assert masked_max_abs_value < 1e-5, f'Error {masked_max_abs_value} too high'
     N = jnp.sum(node_mask,1, keepdims=True)
     mean = jnp.sum(x, 1, keepdims=True) / N
     x = x - mean * node_mask
@@ -60,7 +63,7 @@ def assert_correctly_masked(variable, node_mask):
 
 
 def center_gravity_zero_gaussian_log_likelihood(x):
-    assert x.ndim == 3
+    #assert x.ndim == 3
     B, N, D = x.shape
     assert_mean_zero(x)
 
@@ -78,7 +81,7 @@ def center_gravity_zero_gaussian_log_likelihood(x):
 
 
 def sample_center_gravity_zero_gaussian(rng, size):
-    assert len(size) == 3
+    #assert len(size) == 3
     # x = jnp.randn(size, device=device)
     x = jax.random.normal(rng, size)
 
@@ -89,7 +92,7 @@ def sample_center_gravity_zero_gaussian(rng, size):
 
 
 def center_gravity_zero_gaussian_log_likelihood_with_mask(x, node_mask):
-    assert len(x.size()) == 3
+    #assert len(x.size()) == 3
     B, N_embedded, D = x.size()
     assert_mean_zero_with_mask(x, node_mask)
 
@@ -109,7 +112,7 @@ def center_gravity_zero_gaussian_log_likelihood_with_mask(x, node_mask):
 
 
 def sample_center_gravity_zero_gaussian_with_mask(rng, size, node_mask):
-    assert len(size) == 3
+    #assert len(size) == 3
     # print("DL2: hack here, for the key")
     # key=jax.random.PRNGKey(42)
     x = jax.random.normal(rng, size)

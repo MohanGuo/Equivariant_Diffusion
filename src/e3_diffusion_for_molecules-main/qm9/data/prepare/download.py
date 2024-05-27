@@ -54,6 +54,8 @@ def prepare_dataset(datadir, dataset, subset=None, splits=None, cleanup=True, fo
 
     datafiles_checks = [os.path.exists(datafile)
                         for datafile in datafiles.values()]
+    
+    print("datafiles_checks is ",datafiles_checks)
 
     for datafile in datafiles.values():
         print(datafile)

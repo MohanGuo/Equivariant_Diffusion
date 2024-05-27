@@ -93,7 +93,7 @@ def sample_chain(rng, args, flow, n_tries, dataset_info, model_state, prop_dist=
             x = chain[:, :, 0:3]
             one_hot = chain[:, :, 3:-1]
             one_hot = F.one_hot(jnp.argmax(one_hot, axis=2), num_classes=len(dataset_info['atom_decoder']))
-            charges = jnp.round(chain[:, :, -1:]).astype(jnp.int64)
+            charges = jnp.round(chain[:, :, -1:]).astype(jnp.int32)
 
             if mol_stable:
                 print('Found stable molecule to visualize :)')
@@ -151,7 +151,13 @@ def sample(rng, args, model_state, dataset_info, prop_dist, model,
         context = None
 
     if args.probabilistic_model == 'diffusion':
-        x, h = model.apply(
+        # x, h = model.apply(
+        #     model_state.params,
+        #     rng, batch_size, max_n_nodes, node_mask, edge_mask, context,
+        #     fix_noise=fix_noise,
+        #     mode="sample"
+        # )
+        x, h = model_state.apply_fn(
             model_state.params,
             rng, batch_size, max_n_nodes, node_mask, edge_mask, context,
             fix_noise=fix_noise,

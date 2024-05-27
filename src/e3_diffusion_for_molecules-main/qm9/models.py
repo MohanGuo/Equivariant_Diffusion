@@ -33,22 +33,11 @@ def process_input(args, dataloader_train, device, property_norms):
     # device='cpu'
     dtype = torch.float32
     exmp_imgs = next(iter(dataloader_train))
-    x_example = exmp_imgs['positions'].to(device, dtype)
-    node_mask_example = exmp_imgs['atom_mask'].to(device, dtype).unsqueeze(2)
-    edge_mask_example = exmp_imgs['edge_mask'].to(device, dtype)
-    one_hot_example = exmp_imgs['one_hot'].to(device, dtype)
-    charges_example = (exmp_imgs['charges'] if args.include_charges else torch.zeros(0)).to(device, dtype)
-
-    x_cpu = x_example.data.cpu()
-    x_example = jnp.asarray(x_cpu)
-    node_mask_cpu = node_mask_example.data.cpu()
-    node_mask_example = jnp.asarray(node_mask_cpu)
-    edge_mask_cpu = edge_mask_example.data.cpu()
-    edge_mask_example = jnp.asarray(edge_mask_cpu)
-    one_hot_cpu = one_hot_example.data.cpu()
-    one_hot_example = jnp.asarray(one_hot_cpu)
-    charges_cpu = charges_example.data.cpu()
-    charges_example = jnp.asarray(charges_cpu)
+    x_example = exmp_imgs['positions']
+    node_mask_example = jnp.expand_dims(exmp_imgs['atom_mask'],2)
+    edge_mask_example = exmp_imgs['edge_mask']
+    one_hot_example = exmp_imgs['one_hot']
+    charges_example = (exmp_imgs['charges'] if args.include_charges else jnp.zeros(0))
     h_example = {'categorical': one_hot_example, 'integer': charges_example}
 
     x_example = remove_mean_with_mask(x_example, node_mask_example)
@@ -66,9 +55,9 @@ def process_input(args, dataloader_train, device, property_norms):
 
     # print(f"h: {h_example}")
     if len(args.conditioning) > 0:
-        context_example = qm9utils.prepare_context(args.conditioning, exmp_imgs, property_norms).to(device, dtype)
-        context_cpu = context_example.data.cpu()
-        context_example = jnp.asarray(context_cpu)
+        context_example = qm9utils.prepare_context(args.conditioning, exmp_imgs, property_norms)
+        # context_cpu = context_example.data.cpu()
+        # context_example = jnp.asarray(context_cpu)
         assert_correctly_masked(context_example, node_mask_example)
     else:
         context_example = None
@@ -100,7 +89,7 @@ def get_model(args, device, dataset_info, dataloader_train, rng, property_norms)
 
         def __iter__(self):
             for batch in self.data_loader:
-                yield convert_data_to_jax(batch)
+                yield batch #convert_data_to_jax(batch)
 
         def __len__(self):
             return len(self.data_loader)
@@ -149,8 +138,7 @@ def get_model(args, device, dataset_info, dataloader_train, rng, property_norms)
                                                                                                     property_norms)
         rng, inp_rng, init_rng = jax.random.split(rng, 3)
         # inp = jax.random.normal(inp_rng, (args.batch_size, args.nf))  # Batch size 8, input size 2
-        params_vdm = vdm.init(init_rng, inp_rng, args, x_example, h_example, node_mask_example, edge_mask_example,
-                              context_example, training=True)
+        params_vdm = vdm.init(init_rng, inp_rng, x_example, h_example, node_mask_example, edge_mask_example, context_example, training=True)
         # params_vdm = vdm.init(init_rng, inp)
 
         #TODO no constant init.
@@ -205,6 +193,7 @@ class DistributionNodes:
 
     def log_prob(self, batch_n_nodes):
         assert len(batch_n_nodes.shape) == 1
+        # print("keys len is ",len(self.keys))
         idcs = [self.keys[i.item()] for i in batch_n_nodes]
         idcs = jnp.asarray(idcs)
         log_p = jnp.log(self.prob + 1e-30)

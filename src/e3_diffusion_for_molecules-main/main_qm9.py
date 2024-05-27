@@ -1,29 +1,31 @@
 # Rdkit import should be first, do not move it
+
 try:
     from rdkit import Chem
 except ModuleNotFoundError:
     pass
-import copy
-import utils
 import argparse
+import copy
+import pickle
+import time
+from os.path import join
+
+import flax
+import jax
+import optax
+import torch
+from flax.training import train_state
+
+import utils
 import wandb
 from configs.datasets_config import get_dataset_info
-from os.path import join
-from qm9 import dataset
-from qm9.models import get_optim, get_model
 from equivariant_diffusion import luke_en_diffusion
-from equivariant_diffusion.utils import assert_correctly_masked
 from equivariant_diffusion import utils as flow_utils
-import torch
-import time
-import pickle
-from qm9.utils import prepare_context, compute_mean_mad
-from train_test import train_epoch, test, analyze_and_save, convert_data_to_jax
-import jax
-from flax.training import train_state
-import optax
-import os
-import flax
+from equivariant_diffusion.utils import assert_correctly_masked
+from qm9 import dataset
+from qm9.models import get_model
+from qm9.utils import prepare_context, compute_mean_mad  # get_checkpoint_info
+from train_test import train_epoch, test, analyze_and_save
 
 parser = argparse.ArgumentParser(description='E3Diffusion')
 parser.add_argument('--exp_name', type=str, default='debug_10')
@@ -122,6 +124,10 @@ parser.add_argument('--aggregation_method', type=str, default='sum',
                     help='"sum" or "mean"')
 args = parser.parse_args()
 
+# os.environ['JAX_DISABLE_JIT'] = '1'
+# Enable logging for JIT compilation
+# jax.config.update("jax_log_compiles", True)
+
 dataset_info = get_dataset_info(args.dataset, args.remove_h)
 
 atom_encoder = dataset_info['atom_encoder']
@@ -131,8 +137,9 @@ atom_decoder = dataset_info['atom_decoder']
 args.wandb_usr = utils.get_wandb_username(args.wandb_usr)
 
 args.cuda = not args.no_cuda and torch.cuda.is_available()
-# device = torch.device("cuda" if args.cuda else "cpu")
-device = "cpu"
+gpu_present = any(device.platform == 'gpu' for device in jax.devices())
+device = "cuda" if gpu_present else "cpu"
+args.run_trace=False
 
 dtype = torch.float32
 # print(device)
@@ -185,7 +192,7 @@ if len(args.conditioning) > 0:
     print(f'Conditioning on {args.conditioning}')
     property_norms = compute_mean_mad(dataloaders, args.conditioning, args.dataset)
     context_dummy = prepare_context(args.conditioning, data_dummy, property_norms)
-    context_node_nf = context_dummy.size(2)
+    context_node_nf = context_dummy.shape[2]
 else:
     context_node_nf = 0
     property_norms = None
@@ -232,12 +239,6 @@ def save_model_params_and_count_to_file(params, file_path):
 
 
 def main():
-    #TODO resume
-    # if args.resume is not None:
-    #     flow_state_dict = torch.load(join(args.resume, 'flow.npy'))
-    #     optim_state_dict = torch.load(join(args.resume, 'optim.npy'))
-    #     model.load_state_dict(flow_state_dict)
-    #     optim.load_state_dict(optim_state_dict)
 
     # Initialize dataparallel if enabled and possible.
     # if args.dp and torch.cuda.device_count() > 1:
@@ -285,22 +286,35 @@ def main():
 
     #Optimizer
     optim = optax.adamw(
-        # generative_model,
-        learning_rate=args.lr,  # no amsgrad in optax
+        learning_rate=args.lr, 
         weight_decay=1e-12)
-    # opt_state = optim.init(params)
 
     model_state = train_state.TrainState.create(apply_fn=model.apply,
-                                                params=params,
-                                                tx=optim)
+                                            params=params,
+                                            tx=optim)
+
+    # ckpt_mngr,ckpt_path=get_checkpoint_info(args)
+
+    # if(args.resume is not None ):
+    #     if(os.path.exists(ckpt_path)):
+    #         print("ckpt_path is ",ckpt_path)
+    #         step=ckpt_mngr.latest_step()
+    #         model_state = ckpt_mngr.restore(step)
+    #     else:
+    #         print("could not find checkpoint at ",ckpt_path)
 
     #Train
+    if(args.augment_noise>0):
+        print("unfortunately we've broken augment noise")
     best_nll_val = 1e8
     best_nll_test = 1e8
+    # for i,  data in enumerate(dataloaders['train']):
+    #     print("i is ",i)
+
     for epoch in range(args.start_epoch, args.n_epochs):
         start_epoch = time.time()
-        args.break_train_epoch = True
-        params, opt_state, average_loss = train_epoch(
+        # args.break_train_epoch = True
+        params, model_state, average_loss = train_epoch(
             rng=rng, args=args, loader=dataloaders['train'], epoch=epoch, model=model, params=model_state.params,
             model_dp=model_dp,
             model_ema=model_ema, ema=ema, device=device, dtype=dtype, property_norms=property_norms,
@@ -308,16 +322,14 @@ def main():
             gradnorm_queue=gradnorm_queue, optim=optim, prop_dist=prop_dist, state=model_state
         )
 
-        print(f"Epoch took {time.time() - start_epoch:.1f} seconds.")
-        print(f"Average Loss: {average_loss}")
+        print(f"-------  Epoch took {time.time() - start_epoch:.1f} seconds. Average Loss: {average_loss}")
 
         if epoch % args.test_epochs == 0:
-            # wandb does not support jax
-            # if isinstance(model, en_diffusion.EnVariationalDiffusion):
-            #     wandb.log(model.log_info(), commit=True)
+            if isinstance(model, luke_en_diffusion.EnVariationalDiffusion):
+                wandb.log(model_state.apply_fn(model_state.params, mode="log_info"), commit=True)
 
             if not args.break_train_epoch:
-                analyze_and_save(args=args, epoch=epoch, model_sample=model_ema, nodes_dist=nodes_dist,
+                analyze_and_save(rng=rng, args=args, epoch=epoch, model_sample=model_state, nodes_dist=nodes_dist,
                                  dataset_info=dataset_info, device=device,
                                  prop_dist=prop_dist, n_samples=args.n_stability_samples)
             nll_val = test(rng, args=args, loader=dataloaders['valid'], epoch=epoch, eval_model=model_ema_dp,
@@ -330,27 +342,11 @@ def main():
             if nll_val < best_nll_val:
                 best_nll_val = nll_val
                 best_nll_test = nll_test
-                if args.save_model:
-                    args.current_epoch = epoch + 1
-                    utils.save_model(optim, 'outputs/%s/optim.npy' % args.exp_name)
-                    utils.save_model(model, 'outputs/%s/generative_model.npy' % args.exp_name)
-                    if args.ema_decay > 0:
-                        utils.save_model(model_ema, 'outputs/%s/generative_model_ema.npy' % args.exp_name)
-                    with open('outputs/%s/args.pickle' % args.exp_name, 'wb') as f:
-                        pickle.dump(args, f)
 
-                if args.save_model:
-                    utils.save_model(optim, 'outputs/%s/optim_%d.npy' % (args.exp_name, epoch))
-                    utils.save_model(model, 'outputs/%s/generative_model_%d.npy' % (args.exp_name, epoch))
-                    if args.ema_decay > 0:
-                        utils.save_model(model_ema, 'outputs/%s/generative_model_ema_%d.npy' % (args.exp_name, epoch))
-                    with open('outputs/%s/args_%d.pickle' % (args.exp_name, epoch), 'wb') as f:
-                        pickle.dump(args, f)
-            print('Val loss: %.4f \t Test loss:  %.4f' % (nll_val, nll_test))
-            print('Best val loss: %.4f \t Best test loss:  %.4f' % (best_nll_val, best_nll_test))
-            # wandb.log({"Val loss ": nll_val}, commit=True)
-            # wandb.log({"Test loss ": nll_test}, commit=True)
-            # wandb.log({"Best cross-validated test loss ": best_nll_test}, commit=True)
+            print('Val loss: %.4f \t Test loss:  %.4fBest val loss: %.4f \t Best test loss:  %.4f'  % (nll_val, nll_test, best_nll_val, best_nll_test))
+            wandb.log({"Val loss ": nll_val}, commit=True)
+            wandb.log({"Test loss ": nll_test}, commit=True)
+            wandb.log({"Best cross-validated test loss ": best_nll_test}, commit=True)
 
 
 if __name__ == "__main__":

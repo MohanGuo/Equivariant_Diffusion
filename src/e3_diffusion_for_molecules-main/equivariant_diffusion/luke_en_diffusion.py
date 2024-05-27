@@ -150,8 +150,8 @@ def gaussian_KL_for_dimension(q_mu, q_sigma, p_mu, p_sigma, d):
     """
     mu_norm2 = sum_except_batch((q_mu - p_mu)**2)
     # Ensure the standard deviations are 1-dimensional
-    assert q_sigma.ndim == 1
-    assert p_sigma.ndim == 1
+    #assert q_sigma.ndim == 1
+    #assert p_sigma.ndim == 1
     kl_div = (
         d * jnp.log(p_sigma / q_sigma) +
         0.5 * (d * q_sigma**2 + mu_norm2) / p_sigma**2 -
@@ -203,7 +203,7 @@ class SinusoidalPosEmb(nn.Module):
 
     def __call__(self, x):
         x = x.squeeze() * 1000
-        assert x.ndim == 1  
+        #assert x.ndim == 1  
         half_dim = self.dim // 2
         emb = math.log(10000) / (half_dim - 1)
         emb = jnp.exp(jnp.arange(half_dim) * -emb)
@@ -227,7 +227,7 @@ class PredefinedNoiseSchedule():
             alphas2 = cosine_beta_schedule(self.timesteps)
         elif 'polynomial' in self.noise_schedule:
             splits = self.noise_schedule.split('_')
-            assert len(splits) == 2
+            #assert len(splits) == 2
             power = float(splits[1])
             alphas2 = polynomial_schedule(self.timesteps, s=self.precision, power=power)
         else:
@@ -318,14 +318,14 @@ class EnVariationalDiffusion(nn.Module):
     include_charges: bool = True
 
     def setup(self):
-        assert self.loss_type in {'vlb', 'l2'}
+        #assert self.loss_type in {'vlb', 'l2'}
         if self.noise_schedule == 'learned':
-            assert self.loss_type == 'vlb', 'A noise schedule can only be learned' \
-                                       ' with a vlb objective.'
+            #assert self.loss_type == 'vlb', 'A noise schedule can only be learned with a vlb objective.'
+            pass
 
         
         # Only supported parametrization.
-        assert self.parametrization == 'eps'
+        #assert self.parametrization == 'eps'
 
         if self.noise_schedule == 'learned':
             self.gamma = GammaNetwork()
@@ -338,8 +338,8 @@ class EnVariationalDiffusion(nn.Module):
 
         #register a variable without updating
         self.buffer = self.variable('states', 'buffer', lambda: jnp.zeros(1))
-        if self.noise_schedule != 'learned':
-            self.check_issues_norm_values()
+        #if self.noise_schedule != 'learned':
+        #    self.check_issues_norm_values()
         
         self.T = self.timesteps
 
@@ -420,7 +420,7 @@ class EnVariationalDiffusion(nn.Module):
         # Parse from z
         x, h_cat = z[:, :, 0:self.n_dims], z[:, :, self.n_dims:self.n_dims+self.num_classes]
         h_int = z[:, :, self.n_dims+self.num_classes:self.n_dims+self.num_classes+1]
-        assert h_int.shape[2] == self.include_charges
+        #assert h_int.shape[2] == self.include_charges
 
         # Unnormalize
         x, h_cat, h_int = self.unnormalize(x, h_cat, h_int, node_mask)
@@ -511,7 +511,7 @@ class EnVariationalDiffusion(nn.Module):
         batch_size = x.shape[0]
 
         n_nodes = node_mask.squeeze(2).sum(1)  # N has shape [B]
-        assert n_nodes.shape == (batch_size,)
+        #assert n_nodes.shape == (batch_size,)
         degrees_of_freedom_x = (n_nodes - 1) * self.n_dims
 
         zeros = jnp.zeros((x.shape[0], 1))
@@ -540,7 +540,7 @@ class EnVariationalDiffusion(nn.Module):
         x, h_cat, h_int = self.unnormalize(x, z0[:, :, self.n_dims:-1], h_int, node_mask)
 
         h_cat = jax.nn.one_hot(jnp.argmax(h_cat, axis=2), self.num_classes) * node_mask
-        h_int = jnp.round(h_int).astype(jnp.int64) * node_mask
+        h_int = jnp.round(h_int).astype(jnp.int32) * node_mask
         h = {'integer': h_int, 'categorical': h_cat}
         return x, h
 
@@ -578,7 +578,7 @@ class EnVariationalDiffusion(nn.Module):
 
         estimated_h_integer = z_h_int * self.norm_values[2] + self.norm_biases[2]
         estimated_h_cat = z_h_cat * self.norm_values[1] + self.norm_biases[1]
-        assert h_integer.shape == estimated_h_integer.shape
+        #assert h_integer.shape == estimated_h_integer.shape
 
         h_integer_centered = h_integer - estimated_h_integer
 
@@ -617,7 +617,7 @@ class EnVariationalDiffusion(nn.Module):
         return log_p_xh_given_z
 
 
-    def compute_loss(self, rng, args, x, h, node_mask, edge_mask, context, t0_always, training=False):
+    def compute_loss(self, rng, x, h, node_mask, edge_mask, context, t0_always, training=False):
         """Computes an estimator for the variational lower bound, or the simple loss (MSE)."""
 
         # This part is about whether to include loss term 0 always.
@@ -658,14 +658,14 @@ class EnVariationalDiffusion(nn.Module):
 
         # Concatenate x, h[integer] and h[categorical].
         # xh = jnp.concatenate([x, h['categorical'], h['integer']], axis=2)
-        if args.include_charges:
+        if self.include_charges:
             xh = jnp.concatenate([x, h['categorical'], h['integer']], axis=2)
         else:
             xh = jnp.concatenate([x, h['categorical']], axis=2)
         # Sample z_t given x, h for timestep t, from q(z_t | x, h)
         z_t = alpha_t * xh + sigma_t * eps
 
-        diffusion_utils.assert_mean_zero_with_mask(z_t[:, :, :self.n_dims], node_mask)
+        #diffusion_utils.assert_mean_zero_with_mask(z_t[:, :, :self.n_dims], node_mask)
 
         # Neural net prediction.
         net_out = self.phi(z_t, t, node_mask, edge_mask, context)
@@ -678,7 +678,7 @@ class EnVariationalDiffusion(nn.Module):
         else:
             # Compute weighting with SNR: (SNR(s-t) - 1) for epsilon parametrization.
             SNR_weight = (self.SNR(gamma_s - gamma_t) - 1).squeeze(1).squeeze(1)
-        assert error.shape == SNR_weight.shape
+        #assert error.shape == SNR_weight.shape
         loss_t_larger_than_zero = 0.5 * SNR_weight * error
 
         # The _constants_ depending on sigma_0 from the
@@ -714,9 +714,9 @@ class EnVariationalDiffusion(nn.Module):
             loss_term_0 = -self.log_pxh_given_z0_without_constants(
                 x, h, z_0, gamma_0, eps_0, net_out, node_mask)
 
-            assert kl_prior.shape == estimator_loss_terms.shape
-            assert kl_prior.shape == neg_log_constants.shape
-            assert kl_prior.shape == loss_term_0.shape
+            #assert kl_prior.shape == estimator_loss_terms.shape
+            #assert kl_prior.shape == neg_log_constants.shape
+            #assert kl_prior.shape == loss_term_0.shape
 
             loss = kl_prior + estimator_loss_terms + neg_log_constants + loss_term_0
 
@@ -737,17 +737,18 @@ class EnVariationalDiffusion(nn.Module):
                 num_terms = self.T + 1  # Includes t = 0.
                 estimator_loss_terms = num_terms * loss_t
 
-            assert kl_prior.shape == estimator_loss_terms.shape
-            assert kl_prior.shape == neg_log_constants.shape
+            #assert kl_prior.shape == estimator_loss_terms.shape
+            #assert kl_prior.shape == neg_log_constants.shape
 
             loss = kl_prior + estimator_loss_terms + neg_log_constants
 
-        assert len(loss.shape) == 1, f'{loss.shape} has more than only batch dim.'
+        #assert len(loss.shape) == 1, f'{loss.shape} has more than only batch dim.'
 
         return loss, {'t': t_int.squeeze(), 'loss_t': loss.squeeze(),
                       'error': error.squeeze()}
 
-    def call_compute_loss(self, rng, args, x, h, node_mask=None, edge_mask=None, context=None, training=False, **_):
+
+    def call_compute_loss(self, rng, x, h, node_mask=None, edge_mask=None, context=None, training=False, **_):
         # Normalize data, take into account volume change in x.
         x, h, delta_log_px = self.normalize(x, h, node_mask)
 
@@ -756,18 +757,20 @@ class EnVariationalDiffusion(nn.Module):
             delta_log_px = jnp.zeros_like(delta_log_px)
 
         if training:
+
+            
             # Only 1 forward pass when t0_always is False.
-            loss, loss_dict = self.compute_loss(rng, args, x, h, node_mask, edge_mask, context, t0_always=False,
+            loss, loss_dict = self.compute_loss(rng, x, h, node_mask, edge_mask, context, t0_always=False,
                                                 training=training)
         else:
             # Less variance in the estimator, costs two forward passes.
-            loss, loss_dict = self.compute_loss(rng, args, x, h, node_mask, edge_mask, context, t0_always=True,
+            loss, loss_dict = self.compute_loss(rng, x, h, node_mask, edge_mask, context, t0_always=True,
                                                 training=training)
 
         neg_log_pxh = loss
 
         # Correct for normalization on x.
-        assert neg_log_pxh.shape == delta_log_px.shape
+        #assert neg_log_pxh.shape == delta_log_px.shape
         neg_log_pxh = neg_log_pxh - delta_log_px
 
         return neg_log_pxh
@@ -804,8 +807,8 @@ class EnVariationalDiffusion(nn.Module):
         eps_t = self.phi(zt, t, node_mask, edge_mask, context)
 
         # Compute mu for p(zs | zt).
-        diffusion_utils.assert_mean_zero_with_mask(zt[:, :, :self.n_dims], node_mask)
-        diffusion_utils.assert_mean_zero_with_mask(eps_t[:, :, :self.n_dims], node_mask)
+        #diffusion_utils.assert_mean_zero_with_mask(zt[:, :, :self.n_dims], node_mask)
+        #diffusion_utils.assert_mean_zero_with_mask(eps_t[:, :, :self.n_dims], node_mask)
         mu = zt / alpha_t_given_s - (sigma2_t_given_s / alpha_t_given_s / sigma_t) * eps_t
 
         # Compute sigma for p(zs | zt).
@@ -849,7 +852,7 @@ class EnVariationalDiffusion(nn.Module):
         else:
             z = self.sample_combined_position_feature_noise(rng, n_samples, n_nodes, node_mask)
 
-        diffusion_utils.assert_mean_zero_with_mask(z[:, :, :self.n_dims], node_mask)
+        #diffusion_utils.assert_mean_zero_with_mask(z[:, :, :self.n_dims], node_mask)
 
         # Iteratively sample p(z_s | z_t) for t = 1, ..., T, with s = t - 1.
         for s in reversed(range(0, self.timesteps)):
@@ -863,7 +866,7 @@ class EnVariationalDiffusion(nn.Module):
         # Finally sample p(x, h | z_0).
         x, h = self.sample_p_xh_given_z0(z, node_mask, edge_mask, context, fix_noise=fix_noise)
 
-        diffusion_utils.assert_mean_zero_with_mask(x, node_mask)
+        #diffusion_utils.assert_mean_zero_with_mask(x, node_mask)
 
         max_cog = jnp.abs(jnp.sum(x, axis=1, keepdims=True)).max().item()
         if max_cog > 5e-2:
@@ -880,7 +883,7 @@ class EnVariationalDiffusion(nn.Module):
         """
         z = self.sample_combined_position_feature_noise(rng, n_samples, n_nodes, node_mask)
 
-        diffusion_utils.assert_mean_zero_with_mask(z[:, :, :self.n_dims], node_mask)
+        #diffusion_utils.assert_mean_zero_with_mask(z[:, :, :self.n_dims], node_mask)
 
         if keep_frames is None:
             keep_frames = self.timesteps
@@ -900,7 +903,7 @@ class EnVariationalDiffusion(nn.Module):
             z = self.sample_p_zs_given_zt(
                 s_array, t_array, z, node_mask, edge_mask, context)
 
-            diffusion_utils.assert_mean_zero_with_mask(z[:, :, :self.n_dims], node_mask)
+            #diffusion_utils.assert_mean_zero_with_mask(z[:, :, :self.n_dims], node_mask)
 
             # Write to chain tensor.
             write_index = (s * keep_frames) // self.timesteps
@@ -909,7 +912,7 @@ class EnVariationalDiffusion(nn.Module):
         # Finally sample p(x, h | z_0).
         x, h = self.sample_p_xh_given_z0(z, node_mask, edge_mask, context)
 
-        diffusion_utils.assert_mean_zero_with_mask(x[:, :, :self.n_dims], node_mask)
+        #diffusion_utils.assert_mean_zero_with_mask(x[:, :, :self.n_dims], node_mask)
 
         xh = jnp.concatenate([x, h['categorical'], h['integer']], axis=2)
         chain = chain.at[0].set(xh)  # Overwrite last frame with the resulting x and h.
