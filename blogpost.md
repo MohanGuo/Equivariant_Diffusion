@@ -71,13 +71,13 @@ updates the representation of each node, using the information in nearby nodes.
   <img src="readme_material/message_passing.png" alt="Diffusion in nature" width="300" />
 </p>
 <p align="center">
-Figure #(TBA): Visualization of a message passing network (Credit: Yuki Asano)
+Figure 1: Visualization of a message passing network (Credit: Yuki Asano)
 </p>
 
 
 The EGNN specifically contains _equivariant_ convolution layers:
 
-$$\mathbf{x}^{l+1},\mathbf{h}^{l+1}=EGCL\[ \mathbf{x}^l, \mathbf{h}^l \] \qquad \text{(Equation nTBA)}$$
+$$\mathbf{x}^{l+1},\mathbf{h}^{l+1}=EGCL\[ \mathbf{x}^l, \mathbf{h}^l \] \qquad \text{(1)}$$
 
 The EGCL layer is defined through the formulas:
 
@@ -89,11 +89,11 @@ $`\mathbf{x}_i^{l+1} = \mathbf{x}_i^l + \sum_{j \neq i} \frac{\mathbf{x}_i^l \ma
 
 <div align="center">
 
-$`\mathbf{m}_{ij} = \phi_e(\mathbf{h}_i^l, \mathbf{h}_j^l, d^2_{ij})`$ $\qquad \text{(Equation nTBA)}$
+$`\mathbf{m}_{ij} = \phi_e(\mathbf{h}_i^l, \mathbf{h}_j^l, d^2_{ij})`$ $\qquad \text{(2)}$
 
-$` \mathbf{h}_i^{l+1} = \phi_h\left(\mathbf{h}_i^l, \sum_{j \neq i} \tilde{e}_{ij} \mathbf{m}_{ij}\right) `$ $\qquad \text{(Equation nTBA)}$
+$` \mathbf{h}_i^{l+1} = \phi_h\left(\mathbf{h}_i^l, \sum_{j \neq i} \tilde{e}_{ij} \mathbf{m}_{ij}\right) `$ $\qquad \text{(3)}$
 
-$`\mathbf{x}_i^{l+1} = \mathbf{x}_i^l + \sum_{j \neq i} \frac{\mathbf{x}_i^l \mathbf{x}_j^l}{d_{ij} + 1} \phi_x(\mathbf{h}_i^l, \mathbf{h}_j^l, d^2_{ij})`$ $\qquad \text{(Equation nTBA)}$
+$`\mathbf{x}_i^{l+1} = \mathbf{x}_i^l + \sum_{j \neq i} \frac{\mathbf{x}_i^l \mathbf{x}_j^l}{d_{ij} + 1} \phi_x(\mathbf{h}_i^l, \mathbf{h}_j^l, d^2_{ij})`$ $\qquad \text{(4)}$
 
 </div>
 
@@ -108,7 +108,11 @@ This architecture then satisfies translation and rotation equivariance. Notably,
 between the nodes and these distances are not changed by isometric transformations.
 
 
-<!-- Using group actions we can explain translation equivariance in EGNN's. A translation by a vector c forms a group action G(x)= x+c. An EGNN is designed in a way so if the node positions are translated by c, resulting a new position x+c, the network with translate the output accordingly by c. This way it reflects the same group action ensuring the network respects the translation group action. One way this is achieved is by using relative positional information, which remain unchanged under the group action of translation. -->
+<!-- Using group actions we can explain translation equivariance in EGNN's. A translation by a vector c forms a group 
+action G(x)= x+c. An EGNN is designed in a way so if the node positions are translated by c, resulting a new 
+position x+c, the network with translate the output accordingly by c. This way it reflects the same group action 
+ensuring the network respects the translation group action. One way this is achieved is by using relative positional 
+information, which remain unchanged under the group action of translation. -->
 
 ## Diffusion Models
 
@@ -123,7 +127,7 @@ is an approach adopted by many powerful diffusion models.
   <img src="readme_material/Diffusion_models_flower.gif" alt="Diffusion in model" width="500" />
 </p>
 <p align="center">
-Figure 1: Physical diffusion (left) and generative modelling with diffusion (right) 
+Figure 2: Physical diffusion (left) and generative modelling with diffusion (right) 
 </p>
 
 ### Denoising Diffusion Probabilistic Models (DDPM)
@@ -145,7 +149,7 @@ Gaussian noise with a variance of $\beta_t \in (0,1)$. We formally write this tr
 
 $$
 \begin{align}
-q\left( x_t \mid x_{t-1} \right) := \mathcal{N}\left( x_t ; \sqrt{1-\beta_t} x_{t-1}, \beta_t \mathbf{I} \right) & \qquad \text{(Equation (TBA))}
+q\left( x_t \mid x_{t-1} \right) := \mathcal{N}\left( x_t ; \sqrt{1-\beta_t} x_{t-1}, \beta_t \mathbf{I} \right) & \qquad \text{(5)}
 \end{align}
 $$
 
@@ -153,7 +157,7 @@ And the whole Markov process leading to time step $T$ is given as a chain of the
 
 $$
 \begin{align}
-q\left( x_1, \ldots, x_T \mid x_0 \right) := \prod_{t=1}^T q \left( x_t \mid x_{t-1} \right) & \qquad \text{(Equation (TBA))}
+q\left( x_1, \ldots, x_T \mid x_0 \right) := \prod_{t=1}^T q \left( x_t \mid x_{t-1} \right) & \qquad \text{(6)}
 \end{align}
 $$
 
@@ -161,7 +165,7 @@ $$
 <img src="readme_material/ddpm_figure.png" width=700>
 </p>
 <p align="center">
-Figure 2: The Markov process of forward and reverse diffusion [8]
+Figure 3: The Markov process of forward and reverse diffusion [8]
 </p>
 
 ### Reverse diffusion process ("denoising")
@@ -172,16 +176,16 @@ given the curren timestep. To be more specific, we train the model to predict th
 original data to get the current timestep. By subtracting the noise, we get the original data.
 --->
 
-Since Figure #(TBA) shows that the reverse transitions are unknown, DDPMs tell us we need to approximate them using e.g. a
-neural network parametrized by $\theta$:
+As Figure 3 shows, the reverse transitions are unknown, hence DDPM approximates them using e.g. a neural network 
+parametrized by $\theta$:
 
-$$p_\theta \left( x_{t-1} \mid x_t \right) := \mathcal{N} \left( x_{t-1} ; \mu_\theta \left( x_t, t \right), \Sigma_\theta \left( x_t, t \right) \right) \qquad \text{(Equation (TBA))}$$
+$$p_\theta \left( x_{t-1} \mid x_t \right) := \mathcal{N} \left( x_{t-1} ; \mu_\theta \left( x_t, t \right), \Sigma_\theta \left( x_t, t \right) \right) \qquad \text{((7))}$$
 
 Since variance of the noise for each $t$ is known from the forward process, we can fix $\Sigma_\theta \left( x_t, t \right)$ to be $\beta_t \mathbf{I}$.
 
 The network prediction is then only needed to obtain $\mu_\theta \left( x_t, t \right)$, given by:
 
-$$\mu_\theta \left( x_t, t \right) = \frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta\_t}{\sqrt{1 - \bar{\alpha}\_t}} \epsilon\_\theta \left( x_t, t \right) \right) \qquad \text{(Equation TBA)}$$
+$$\mu_\theta \left( x_t, t \right) = \frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta\_t}{\sqrt{1 - \bar{\alpha}\_t}} \epsilon\_\theta \left( x_t, t \right) \right) \qquad \text{(8)}$$
 
 where $\alpha_t = \Pi_{s=1}^t \left( 1 - \beta_s \right)$.
 
@@ -189,7 +193,7 @@ Hence, we can directly predict $x_{t-1}$ from $x_{t}$ using the network $\theta$
 
 $$
 \begin{align}
-x_{t-1} = \frac{1}{\sqrt{1 - \beta_t}} \left( x_t - \frac{\beta_t}{\sqrt{1 - \alpha_t}} \epsilon_\theta \left( x_t, t \right) \right) + \sqrt{\beta_t} v_t & \qquad \text{(Equation (TBA))}
+x_{t-1} = \frac{1}{\sqrt{1 - \beta_t}} \left( x_t - \frac{\beta_t}{\sqrt{1 - \alpha_t}} \epsilon_\theta \left( x_t, t \right) \right) + \sqrt{\beta_t} v_t & \qquad \text{((9))}
 \end{align}
 $$
 
@@ -204,11 +208,11 @@ To maximize the log-likelihood of a gaussian distribution, we need to try and fi
 To train our neural network, we define the loss function (L) as the objective function’s negative. So a high value for p_θ(x₀), means low loss and vice versa.
 
 $$
-p_{\theta}(x_{0}) := \int p_{\theta}(x_{0:T})dx_{1:T} \qquad \text{(Equation TBA)}
+p_{\theta}(x_{0}) := \int p_{\theta}(x_{0:T})dx_{1:T} \qquad \text{(10)}
 $$
 
 $$
-L = -\log(p_{\theta}(x_{0})) \qquad \text{(Equation TBA)}
+L = -\log(p_{\theta}(x_{0})) \qquad \text{(11)}
 $$
 
 Turns out, this is intractable because we need to integrate over a very high dimensional (pixel) space for continuous values over T timesteps.
@@ -216,39 +220,32 @@ Turns out, this is intractable because we need to integrate over a very high dim
 By taking inspiration from VAEs and reformulating the training objective using a variational lower bound (VLB), also known as _Evidence lower bound_ (ELBO) we have :
 
 $`
-\mathbb{E}[-\log p_{\theta}(x_{0})] \leq \mathbb{E}_{q} \left[ -\log \frac{p_{\theta}(x_{0:T})}{q(x_{1:T} | x_{0})} \right] = \mathbb{E}_{q} \left[ -\log p(X_{T}) - \sum_{t \geq 1} \log \frac{p_{\theta}(x_{t-1} | x_{t})}{q(x_{t} | x_{t-1})} \right] =: L \qquad \text{(Equation TBA)}
+\mathbb{E}[-\log p_{\theta}(x_{0})] \leq \mathbb{E}_{q} \left[ -\log \frac{p_{\theta}(x_{0:T})}{q(x_{1:T} | x_{0})} \right] = \mathbb{E}_{q} \left[ -\log p(X_{T}) - \sum_{t \geq 1} \log \frac{p_{\theta}(x_{t-1} | x_{t})}{q(x_{t} | x_{t-1})} \right] =: L \qquad \text{(12)}
 `$
 
 After some simplification, we arrive at this final L_vlb - Variational Lower Bound loss term:
 
 $`
-\mathbb{E}_{q} \left[ D_{KL}(q(x_{T}|x_{0}) \parallel p(x_{T})) \bigg\rvert_{L_{T}} + \sum_{t > 1} D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \bigg\rvert_{L_{t-1}} - \log p_{\theta}(x_{0}|x_{1}) \bigg\rvert_{L_{0}} \right] \qquad \text{(Equation TBA)}
+\mathbb{E}_{q} \left[ D_{KL}(q(x_{T}|x_{0}) \parallel p(x_{T})) \bigg\rvert_{L_{T}} + \sum_{t > 1} D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \bigg\rvert_{L_{t-1}} - \log p_{\theta}(x_{0}|x_{1}) \bigg\rvert_{L_{0}} \right] \qquad \text{(13)}
 `$
 
 We can break the above L_vlb loss term into individual timesteps as follows:
 
 $$
-L_{vlb} := L_{0} + L_{1} + \cdots + L_{T-1} + L_{T} \qquad \text{(Equation TBA)}
+L_{vlb} := L_{0} + L_{1} + \cdots + L_{T-1} + L_{T} \qquad \text{(14)}
 $$
 
 $$
-L_{0} := - \log p_{\theta}(x_{0}|x_{1}) \qquad \text{(Equation TBA)}
+L_{0} := - \log p_{\theta}(x_{0}|x_{1}) \qquad \text{(15)}
 $$
 
 $$
-L_{t-1} := D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \qquad \text{(Equation TBA)}
+L_{t-1} := D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \qquad \text{(16)}
 $$
 
 $$
-L_{T} := D_{KL}(q(x_{T}|x_{0}) \parallel p(x_{T})) \qquad \text{(Equation TBA)}
+L_{T} := D_{KL}(q(x_{T}|x_{0}) \parallel p(x_{T})) \qquad \text{(17)}
 $$
-
-<p align="center">
-<img src="readme_material//diffusion_training.gif" width=800>
-</p>
-<p align="center">
-Figure 3: Stochastic sampling process (noisy images on top, predicted images on bottom)
-</p>
 
 The terms ignored are:
 
@@ -258,7 +255,7 @@ The terms ignored are:
 So **Lₜ₋₁** is the only loss term left which is a KL divergence between the _“posterior”_ of the forward process, and the parameterized reverse diffusion process. Both terms are gaussian distributions as well.
 
 $$
-L_{vlb} := L_{t-1} := D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \qquad \text{(Equation TBA)}
+L_{vlb} := L_{t-1} := D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \qquad \text{(18)}
 $$
 
 The term q(xₜ₋₁|xₜ, x₀) is referred to as _“forward process posterior distribution.”_
@@ -269,7 +266,7 @@ The job of our DL model during training is to approximate the parameters of this
 <img src="readme_material//diffusion_training.gif" width=700>
 </p>
 <p align="center">
-Figure #(TBA): Stochastic sampling process (noisy images on top, predicted images on bottom)
+Figure 4: Stochastic sampling process (noisy images on top, predicted images on bottom)
 </p>
 
 
@@ -296,7 +293,7 @@ equivariantly rotated predictions $\mathbf{R}\mathbf{v}_i$ should still be the b
 
 Formally, we say that for any orthogonal rotation matrix $\mathbf{R}$ the following must hold:
 
-$$p(y|x) = p(\mathbf{R}y|\mathbf{R}x) \qquad \text{(Equation nTBA)}$$
+$$p(y|x) = p(\mathbf{R}y|\mathbf{R}x) \qquad \text{(19)}$$
 
 <!---
 (TBA - have a nice figure in my head to illustrate this with vectors if I can make it in time)
@@ -310,7 +307,7 @@ time step $t$ must be roto-invariant, otherwise rotations would alter the likeli
   <img src="readme_material/roto_symetry_donut.png" alt="Diffusion in model" width="250" />
 </p>
 <p align="center">
-Figure 4: Examples of 2D roto-invariant distributions 
+Figure 5: Examples of 2D roto-invariant distributions 
 </p>
 
 
@@ -321,7 +318,7 @@ to that group [15].
 
 In the case of EDM, the underlying EGNN ensures equivariance while the initial sampling distribution
 can easily be constrained to something roto-invariant, such as a simple mean zero Gaussian with diagonal
-covariance matrix seen in figure #(TBA) (left).
+covariance matrix seen in Figure 5 (left).
 
 **Translations**
 
@@ -364,7 +361,7 @@ Using the KL divergence loss term introduced in DDPM with the EDM model parametr
 <img src="readme_material/EDM_eq17.png" alt="" width="300" />
 </p>
 <p align="center">
-$\qquad \text{(Equation nTBA)}$
+$\qquad \text{(20)}$
 </p>
 
 
@@ -406,7 +403,7 @@ Specifically, as the transfer of mass under the data probability distribution in
 <img src="readme_material//bimodal_to_gaussian_plot.png" alt="Bimodal_to_Gaussian" width="300" />
 </p>
 <p align="center">
-Figure 5 Illustration of a bimodal distribution evolving to a Gaussian over time
+Figure 6: Illustration of a bimodal distribution evolving to a Gaussian over time
 </p>
 
 As one might be familiar with from other disciplines, such process often hints itself to be well described
@@ -421,7 +418,7 @@ samples much faster.
 Song et al. [6] have shown that the noising process in diffusion can be described with a Stochastic Differential Equation (SDE)
 transforming the data distribution $p_{\text{data}}(\mathbf{x})$:
 
-$$d\mathbf{x}_t = \mathbf{\mu}(\mathbf{x}_t, t) dt + \sigma(t) d\mathbf{w}_t \qquad \text{(Equation nTBA)}$$
+$$d\mathbf{x}_t = \mathbf{\mu}(\mathbf{x}_t, t) dt + \sigma(t) d\mathbf{w}_t \qquad \text{(21)}$$
 
 Where $t$ is the time-step, $\mathbf{\mu}$ is the drift coefficient, $\sigma$ is the diffusion coefficient,
 and $\mathbf{w}_t$ is the stochastic component denoting standard Brownian motion. This stochastic component effectively
@@ -438,7 +435,7 @@ the final time-step $T$ is close to a tractable Gaussian.
 This SDE has a remarkable property, that a special ODE exists, whose trajectories sampled at $t$ are distributed
 according to $p_t(\mathbf{x})$ [5]:
 
-$$d\mathbf{x}_t = \left[ \mathbf{\mu}(\mathbf{x}_t, t) - \frac{1}{2} \sigma(t)^2 \nabla \log p_t(\mathbf{x}_t) \right] dt \qquad \text{(Equation nTBA)}$$
+$$d\mathbf{x}_t = \left[ \mathbf{\mu}(\mathbf{x}_t, t) - \frac{1}{2} \sigma(t)^2 \nabla \log p_t(\mathbf{x}_t) \right] dt \qquad \text{(22)}$$
 
 This ODE is dubbed the Probability Flow (PF) ODE by Song et al. [5] and corresponds to the different view of diffusion
 manipulating probability mass over time we hinted at in the beginning of the section.
@@ -447,9 +444,9 @@ A score model $s_\phi(\mathbf{x}, t)$ can be trained to approximate $\nabla log 
 
 Since we know the parametrization of the final distribution $p_T(\mathbf{x})$ to be a standard Gaussian and following
 Karras et al. [7] it is parametrized with $\mathbf{\mu}=0$ and $\sigma(t) = \sqrt{2t}$, this score model can be plugged
-into the equation #(TBA) and the expression reduces itself to an empirical estimate of the PF ODE:
+into the equation (22) and the expression reduces itself to an empirical estimate of the PF ODE:
 
-$$\frac{dx_t}{dt} = -ts\phi(\mathbf{x}_t, t) \qquad \text{(Equation nTBA)}$$
+$$\frac{dx_t}{dt} = -ts\phi(\mathbf{x}_t, t) \qquad \text{(23)}$$
 
 With $\mathbf{\hat{x}}_T$ sampled from the specified Gaussian at time $T$, the PF ODE can be solved backwards in time to obtain
 a solution trajectory mapping all points along the way to the initial data distribution at time $\epsilon$.
@@ -458,14 +455,14 @@ a solution trajectory mapping all points along the way to the initial data distr
 <img src="readme_material//consistency_models_pf_ode.png" alt="Consistency PF ODE" width="500" />
 </p>
 <p align="center">
-Figure 6: Solution trajectories of the PF ODE. [5]
+Figure 7: Solution trajectories of the PF ODE. [5]
 </p>
 
 <br>
 
 **Solving the PF ODE**
 
-In figure 6 the "Noise" corresponds to $p_T(\mathbf{x})$ and the "Data" distribution is treated as one at $t=\epsilon$
+In Figure 7 the "Noise" distribution corresponds to $p_T(\mathbf{x})$ and the "Data" distribution is treated as one at $t=\epsilon$
 very close to time zero. For numerical stability we want to avoid explicitly having $t=0$ [7].
 
 Following Karras et al. [7], the time horizon $[\epsilon, T]$ is discretized into $N-1$ sub-intervals with
@@ -474,7 +471,7 @@ continuous variable.
 
 In practice, the following formula is most often used to determine these boundaries [7]:
 
-$$t_i = \left(\epsilon^{1/\rho} + \frac{i - 1}{N - 1}(T^{1/\rho} - \epsilon^{1/\rho})\right)^\rho \qquad \text{(Equation nTBA)}$$
+$$t_i = \left(\epsilon^{1/\rho} + \frac{i - 1}{N - 1}(T^{1/\rho} - \epsilon^{1/\rho})\right)^\rho \qquad \text{(24)}$$
 
 Given any of-the-shelf ODE solver (e.g. Euler) and a trained score model $s_\phi(\mathbf{x}, t)$, we can solve this PF ODE.
 
@@ -526,13 +523,13 @@ f_\theta (x, t) =
 x & t = \epsilon \\
 F_\theta (x, t) & t \in (\epsilon, T]
 \end{cases} \\
-\qquad \text{(Equation nTBA)}
+\qquad \text{(25)}
 $$
 
 2.) Another method is to parameterize the consistency model using skip connections, that is:
 
 $$
-f_\theta (x, t) = c_{\text{skip}} (t) x + c_{\text{out}} (t) F_\theta (x, t) \qquad \text{(Equation nTBA)}
+f_\theta (x, t) = c_{\text{skip}} (t) x + c_{\text{out}} (t) F_\theta (x, t) \qquad \text{(26)}
 $$
 
 where $c_{\text{skip}} (t)$ and $c_{\text{out}} (t)$ are differentiable functions such that $c_{\text{skip}} (\epsilon) = 1$,
@@ -559,7 +556,7 @@ important applications in zero-shot data editing [5], but in the case of molecul
 <img src="readme_material//consistency_on_molecules.png" alt="Consistency Graph 1" width="600"/>
 </p>
 <p align="center">
-Figure 7: Visualization of PF ODE trajectories for molecule generation in 3D. [9]
+Figure 8: Visualization of PF ODE trajectories for molecule generation in 3D. [9]
 </p>
 
 ### Training Consistency Models
@@ -572,7 +569,7 @@ Recall from the sections that, we relied on a existing pre-trained score model $
 approximate the ground truth score function $\nabla \log p_t(x)$. However, it turns out that we can avoid this
 pre-trained score model altogether by leveraging the following unbiased estimator:
 
-$$ \nabla \log p_t(x_t) = - \mathbb{E} \left[ \frac{x_t - x}{t^2} \middle| x_t \right] \qquad \text{(Equation nTBA)}$$
+$$ \nabla \log p_t(x_t) = - \mathbb{E} \left[ \frac{x_t - x}{t^2} \middle| x_t \right] \qquad \text{(27)}$$
 
 where $x \sim p_\text{data}$ and $x_t \sim \mathcal{N}(x; t^2 I)$.
 
@@ -596,7 +593,7 @@ Song et al. [5] justify this with a further theorem in their paper and show that
 can then be defined as:
 
 <p align="center">
-$\mathcal{L}_{CT}^N (\theta, \theta^-)$ = $\mathbb{E}[\lambda(t_n)d(f_\theta(x + t_{n+1} \mathbf{z}, t_{n+1}), f_{\theta^-}(x + t_n \mathbf{z}, t_n))]$ $\qquad \text{(Equation nTBA)}$
+$\mathcal{L}_{CT}^N (\theta, \theta^-)$ = $\mathbb{E}[\lambda(t_n)d(f_\theta(x + t_{n+1} \mathbf{z}, t_{n+1}), f_{\theta^-}(x + t_n \mathbf{z}, t_n))]$ $\qquad \text{(28)}$
 </p>
 
 where $\mathbf{z} \sim \mathcal{N}(0, I)$.
@@ -611,7 +608,7 @@ $f_{\theta^-}$, while being completely agnostic to diffusion model parameters $\
 <img src="readme_material//consistency_mnist_tiny_example.png" alt="Consistency Graph 2" width="800"/>
 </p>
 <p align="center">
-Figure #(TBA): Consistency model example for the MNIST dataset.
+Figure #(?): Consistency model example for the MNIST dataset.
 </p>
 
 (TBA - visualizations of the molecules if possible)
@@ -673,7 +670,7 @@ To accelerate the training process, the training steps per epoch are compiled us
 
 ### Experiments
 
-NOTE: this is still work in progress until Thursday and subject to change, hence, we do not post many of the intermediate results yet.
+**NOTE**: this is still work in progress until Thursday and subject to change, hence, we do not post many of the intermediate results yet.
 
 The QM9 dataset[29, 30] (Quantum Machine 9) is a commonly used dataset containing the molecular properties and atomic 
 coordinates for 133,885 small molecules, along with computed geometric, energetic, electronic, and thermodynamic 
@@ -688,8 +685,6 @@ of generated molecules where all atoms are stable) of the generated molecules.
 
 ### Consistency Models EDM Results
 
-NOTE: this is still work in progress until Thursday and subject to change depending on new results
-
 Although consistency model worked for EGNN and the training loss and negative log likelihood was going down we could
 not reach atom stability higher than 13%. Further research is needed in order to get better performance, but for the
 scope of the course and the timeframe of the experiment we showed that indeed EGNN can be modified to work with
@@ -697,22 +692,25 @@ consistency models in the spot of Diffusion models.
 
 ### JAX EDM Results
 
-Unfortunately we are still running these results.
+Although we are still running our implementation since the limitation of time and computational resources, we have some interesting findings.
 
 The general trend of results is:
-The Jax model trains (loss converges) our results are not as good as pytorch results. We've not yet checked with 
-enough epochs. If there is a small / medium difference, it might be due to differences in optimizers. If there is a 
-large difference, we might have a bug in our code.
+The Jax model trains (loss converges) although the initial loss is very large compared with pytorch loss. This might be due to the different 
+initialization method as well as randomization method in jax. Our results are not as good as pytorch results. We've not yet checked with 
+enough epochs due to the limitation of computational resources and time. More metric is waiting to be evaluated.
 
 Jax (with jit) is much faster than Jax (without jit), but takes about 50% longer than pytorch.
 
-We had expected that the Jitted model would be faster than the Pytorch model. We cannot draw any overarching 
+The epoch time decreases with training, which means jitting does speeding up the computation. 
+However, we had expected that the Jitted model would be faster than the Pytorch model. We cannot draw any overarching 
 conclusions, as we have not finished optimizing our Jitted model. First, we believe we can reduce the amount of 
 time spent on recompilation. Running the code with debug flag JAX_LOG_COMPILES=1, we found that a lot of time is 
-spent recompiling, which we believe we can optimize. Moreover, we could parallelize our code better. Our code runs 
-operations on batches of inputs (just as the original pytorch version did). We could change the code to run on 
+spent recompiling, which we believe we can optimize. Moreover, we could parallelize our code better. Our code runs operations on batches of inputs 
+(just as the original pytorch version did). We could change the code to run on 
 single inputs, and then use jax.pmap to parallelize, which might result in better performance. There are also a 
 number of smaller optimizations that we could make given time.
+Despite potential future improvements, this implementation shows promise for accelerating performance on larger 
+molecules or datasets due to the characteristics of just-in-time compilation.
 
 <!-- For the sake of speed benchmarking, we ran the JAX, Jax with jitting and pytorch models using toy 
 hyperparameters, as reported in []. Because we have not finished fine-tuning our jax implementation, we decided 
@@ -733,6 +731,8 @@ for both approaches.
 <!-- Maybe also mention dataset considerations -->
 
 ## Conclusion
+
+**NOTE**: this is still work in progress until Thursday and subject to change depending on new results
 
 In conclusion, re-implementing Diffusion model and more specifically Denoising Diffusion Probabilistic Models, 
 with an EGNN as backbone allowed us to verify the original authors claim. At the same time, by leveraging JAX, 

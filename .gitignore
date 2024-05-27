@@ -1,8 +1,5 @@
-
 .DS_store
 *.def
-*.png
-*.jpeg
 *.zip
 *.tar
 *.gz
