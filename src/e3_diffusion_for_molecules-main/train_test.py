@@ -65,7 +65,7 @@ grad_fn = jax.value_and_grad(
 
 
 # @jax.jit
-@verify_arg_types
+# @verify_arg_types
 def train_step(rng, state, x, h, node_mask, edge_mask, context, log_pN, ode_regularization):
     # Determine gradients for current model, parameters and batch
     (loss, (nll, reg_term, mean_abs_z)), grads = grad_fn(rng, state, state.params, x, h, node_mask, edge_mask, context,
