@@ -1,6 +1,0 @@
-conda create -n equi_diff python=3.9.7 -y
-conda install conda-forge::tqdm -n equi_diff
-conda install -c conda-forge matplotlib -n equi_diff
-conda install jaxlib=*=*cuda* jax cuda-nvcc -c conda-forge -c nvidia
-conda install conda-forge::imageio
-conda install pytorch::pytorch -n equi_diff
