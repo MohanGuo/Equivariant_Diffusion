@@ -4,6 +4,9 @@
 *.png
 *.jpeg
 *.zip
+*.tar
+*.gz
+*.bz2
 *.pickle
 *.pyc
 __pycache__
