@@ -2,5 +2,8 @@ conda create -n equi_diff python=3.9.7 -y
 conda install conda-forge::tqdm -n equi_diff
 conda install matplotlib -n equi_diff
 conda install jax -c conda-forge -n equi_diff
+conda install jaxlib -c conda-forge -n equi_diff
 conda install conda-forge::imageio -n equi_diff
-conda install pytorch::pytorch -n equi_diff
+conda install pytorch -n equi_diff
+conda install flax -n equi_diff
+conda install wandb -n equi_diff
