@@ -99,8 +99,8 @@ $`\mathbf{x}_i^{l+1} = \mathbf{x}_i^l + \sum_{j \neq i} \frac{\mathbf{x}_i^l \ma
 
 
 where $h_l$ represents the feature $h$ at layer $l$, $x$ represents the coordinate at layer $l$ and 
-$d_{ij}= ||x_i^l-x^l_j||_2$ is the Euclidean distance between nodes $v_i$ and $v_j$. A fully connected neural 
-networks is used to learn the functions $\phi_x, \phi_x, \phi_h, and \phi_{inf}$. At each layer, a message $m_{ij}$ 
+$`d_{ij}= ||x_i^l-x^l_j||_2`$ is the Euclidean distance between nodes $`v_i`$ and $`v_j`$. A fully connected neural 
+networks is used to learn the functions $`\phi_x`$, $`\phi_x`$, $`\phi_h`$, and $`\phi_{inf}`$. At each layer, a message $`m_{ij}`$ 
 is computed from the previous layer's feature representation. Using the previous feature and the sum of these messages, 
 the model computes the next layer's feature representation.
 
