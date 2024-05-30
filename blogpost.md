@@ -730,8 +730,8 @@ batch_size = 1024 for improved stability.
 </p>
 
 The controlled trade-off between speed and sample quality should be possible with multi-step sampling,
-however, all attempts to make multi-step sampling work resulted in decreased atom stability. We firther 
-discuss the set-up and hypothesise why this did not work in the next section (TBA). 
+however, all attempts to make multi-step sampling work resulted in decreased atom stability. We further 
+discuss the set-up and hypothesise why this did not work in the next section.  
 
 ### EDM in JAX Results
 
