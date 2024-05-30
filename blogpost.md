@@ -149,7 +149,7 @@ Figure 2: Physical diffusion (left) and generative modelling with diffusion (rig
 
 ### Denoising Diffusion Probabilistic Models (DDPM)
 
-One of the most widely-used and powerful diffusion models is the Denoising Diffusion Probabilistic Model (DDPM) [8]. In this model, the data is progressively noised and then the model learns to reverse this process, effectively "denoising" in order to generate new samples step-by-step starting from pure noise.
+One of the most widely-used and powerful diffusion models is the Denoising Diffusion Probabilistic Model (DDPM) [8]. In this model, the data is progressively noised and then the model learns to reverse this process, effectively "denoising". This process allows us to generate new samples from pure noise.
 
 ### Forward diffusion process ("noising")
 
@@ -565,7 +565,7 @@ Figure 8: Visualization of PF ODE trajectories for molecule generation in 3D. [9
 ### Training Consistency Models
 
 
-Consistency models can either be trained by "distillation" from a pre-trained diffusion model, or in "isolation" as a standalone generative model from scratch. In the context of our work, we focused only on the latter because the distillation approach has a hard requirement of using a pretrained score based diffusion. Therefore we decided to train in isolation, building a consistency model from scratch.
+Consistency models can either be trained by "distillation" from a pre-trained diffusion model, or in "isolation" as a standalone generative model from scratch. In the context of our work, we focused only on the latter because the distillation approach has a hard requirement of using a pretrained score based diffusion. 
 In order to train in isolation we ned to leverage the following unbiased estimator:
 
 $$ \nabla \log p_t(x_t) = - \mathbb{E} \left[ \frac{x_t - x}{t^2} \middle| x_t \right] \qquad \text{(27)}$$
