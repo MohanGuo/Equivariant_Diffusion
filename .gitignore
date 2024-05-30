@@ -11,3 +11,5 @@ __pycache__
 run_qm9.sh
 e3_diffusion_for_molecules-main/parameters.txt
 e3_diffusion_for_molecules-main/grads.txt
+
+/src/consistency_model_edm/.venv/
