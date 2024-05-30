@@ -90,9 +90,9 @@ $`\mathbf{x}_i^{l+1} = \mathbf{x}_i^l + \sum_{j \neq i} \frac{\mathbf{x}_i^l \ma
 </div>
 
 
-where $h_l$ represents the feature $h$ at layer $l$, $x$ represents the coordinate at layer $l$ and 
+where $h_l$ represents the feature $h$ at layer $l$, $x_l$ represents the coordinate at layer $l$ and 
 $`d_{ij}= ||x_i^l-x^l_j||_2`$ is the Euclidean distance between nodes $`v_i`$ and $`v_j`$. A fully connected neural 
-networks is used to learn the functions $`\phi_x`$, $`\phi_x`$, $`\phi_h`$, and $`\phi_{inf}`$. At each layer, a message $`m_{ij}`$ 
+networks is used to learn the functions $`\phi_e`$, $`\phi_x`$, and $`\phi_h`$. At each layer, a message $`m_{ij}`$ 
 is computed from the previous layer's feature representation. Using the previous feature and the sum of these messages, 
 the model computes the next layer's feature representation.
 
@@ -108,10 +108,10 @@ information, which remain unchanged under the group action of translation. -->
 
 ## Diffusion Models
 
-Diffusion models [18], are deeply rooted within the principles of physics, where the  process describes particles moving 
+Diffusion models [18] are deeply rooted within the principles of physics, where the process describes particles moving 
 from an area of higher concentration to an area of lower concentration - a process governed by random, stochastic 
 interactions. In the physical world, this spreading can largely be traced back to the original configuration, which 
-inspired scientists to create models of this behaviour. When applied to generative modelling, we usually aim to reconstructed data from some observed or sampled noise, which is an approach adopted by many powerful diffusion models. 
+inspired scientists to create models of this behaviour. When applied to generative modelling, we usually aim to reconstruct data from some observed or sampled noise, which is an approach adopted by many powerful diffusion models. 
 
 <p align="center">
   <img src="readme_material/Diffusion_microscopic.gif" alt="Diffusion in nature" width="181" />
@@ -123,9 +123,7 @@ Figure 2: Physical diffusion (left) and generative modelling with diffusion (rig
 
 ### Denoising Diffusion Probabilistic Models (DDPM)
 
-One of the most widely-used and powerful diffusion models is the Denoising Diffusion Probabilistic Model (DDPM) [8] and its later variations.
-The data is progressively noised and then the model learns to reverse this process, effectively "denoising" in order
-to generate new samples step-by-step starting from pure noise.
+One of the most widely-used and powerful diffusion models is the Denoising Diffusion Probabilistic Model (DDPM) [8]. In this model, the data is progressively noised and then the model learns to reverse this process, effectively "denoising" in order to generate new samples step-by-step starting from pure noise.
 
 ### Forward diffusion process ("noising")
 
@@ -144,7 +142,7 @@ q\left( x_t \mid x_{t-1} \right) := \mathcal{N}\left( x_t ; \sqrt{1-\beta_t} x_{
 \end{align}
 $$
 
-And the whole Markov process leading to time step $T$ is given as a chain of these transitions:
+The whole Markov process leading to time step $T$ is given as a chain of these transitions:
 
 $$
 \begin{align}
@@ -167,12 +165,12 @@ given the curren timestep. To be more specific, we train the model to predict th
 original data to get the current timestep. By subtracting the noise, we get the original data.
 --->
 
-As Figure 3 shows, the reverse transitions are unknown, hence DDPM approximates them using e.g. a neural network 
+As Figure 3 shows, the reverse transitions are unknown, hence DDPM approximates them using a neural network 
 parametrized by $\theta$:
 
 $$p_\theta \left( x_{t-1} \mid x_t \right) := \mathcal{N} \left( x_{t-1} ; \mu_\theta \left( x_t, t \right), \Sigma_\theta \left( x_t, t \right) \right) \qquad \text{((7))}$$
 
-Since variance of the noise for each $t$ is known from the forward process, we can fix $\Sigma_\theta \left( x_t, t \right)$ to be $\beta_t \mathbf{I}$.
+Because we know the dynamics of the forward process, we know the variance at each $t$. Therefore, we can fix $\Sigma_\theta \left( x_t, t \right)$ to be $\beta_t \mathbf{I}$.
 
 The network prediction is then only needed to obtain $\mu_\theta \left( x_t, t \right)$, given by:
 
@@ -206,7 +204,7 @@ $$
 L = -\log(p_{\theta}(x_{0})) \qquad \text{(11)}
 $$
 
-Turns out, this is intractable because we need to integrate over a very high dimensional (pixel) space for continuous values over T timesteps.
+However, this is intractable because we need to integrate over a very high dimensional (pixel) space for continuous values over T timesteps. 
 
 By taking inspiration from VAEs and reformulating the training objective using a variational lower bound (VLB), also known as _Evidence lower bound_ (ELBO) we have :
 
