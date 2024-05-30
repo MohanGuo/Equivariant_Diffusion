@@ -739,6 +739,24 @@ Due to time constraints, we were unable to tune either of our models to the leve
 
 We strongly suspect that the inferior performance of the Jax model results from a bug in our code, which we are still attempting to identify. Converting to Jax required changing the architecture of parts of the code, which may have resulted in a bug. The bug may also be specific to our use of Jax: errors such as improper handling of global values, or use of datatypes, can lead to unexpected behavior. Some typo in the reimplementation may also result in the inferior performance. Differences in optimization and initialization may also cause worse performance, although they do not seem to account for a discrepancy of this magnitude. 
 
+The jax model has a relatively high loss initially, but converges quickly to a comparable level as pytorch model. At the meantime, the atom stability flunctuates a lot while the molecule stability keeps zero. It is possible that we still need some fine-tuning to get a better performance in evaluation metric, since the training process is totally different as can be seen from the loss curve.
+
+<p align="center">
+  <img src="readme_material/results_consistency_atom_stability.png" alt="Diffusion in nature" width="250" />
+</p>
+<p align="center">
+Figure nTBA: Best results for atom stability metric using single-step sampling with consistency models trained on
+batch_size = 1024 for improved stability.
+</p>
+
+<p align="center">
+  <img src="readme_material/results_consistency_atom_stability.png" alt="Diffusion in nature" width="250" />
+</p>
+<p align="center">
+Figure nTBA: Best results for atom stability metric using single-step sampling with consistency models trained on
+batch_size = 1024 for improved stability.
+</p>
+
 We found that our Jax model took only 62% of the time that our pytorch model took for a training epoch with a small model (diffusion_steps=200). We view this number as a reasonable floor for the speed improvement that Jitting can have. For example, our code still spent a lot of time recompiling, as we found when we ran the code with debug flag `JAX_LOG_COMPILES=1`. We believe we can reduce this recompilation. Moreover, we believe that we could parallelize our code better. Our code runs operations on batches of inputs (just as the original pytorch version did). We could change the code to run on single inputs, and then use `jax.pmap` to parallelize, which might result in better performance. There are also a number of smaller optimizations that we could make given time.
 
 ## Conclusion
