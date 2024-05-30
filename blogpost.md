@@ -691,7 +691,7 @@ loss curves, both in magnitude of the NLL and convergence rate:
   <img src="readme_material/results_consistency_train_loss.png" alt="Diffusion in model" width="350" />
 </p>
 <p align="center">
-Figure nTBA: Training loss curves for original EDM (left), and consistency model EDM (right)
+Figure 9: Training loss curves for original EDM (left), and consistency model EDM (right)
 </p>
 
 For validation and testing, we compared samples from an EMA model against the corresponding ground truth sample,
@@ -709,7 +709,7 @@ changed objective:
   <img src="readme_material/results_consistency_test_loss.png" alt="Diffusion in model" width="350" />
 </p>
 <p align="center">
-Figure nTBA: Val (top) and Test (bottom) loss curves for original EDM (left), and consistency model EDM (right)
+Figure 10: Val (top) and Test (bottom) loss curves for original EDM (left), and consistency model EDM (right)
 </p>
 
 These results were obtained using the same EGNN back-bone, batch-size, 
@@ -725,7 +725,7 @@ the consistency model.
   <img src="readme_material/results_consistency_atom_stability.png" alt="Diffusion in nature" width="250" />
 </p>
 <p align="center">
-Figure nTBA: Best results for atom stability metric using single-step sampling with consistency models trained on
+Figure 11: Best results for atom stability metric using single-step sampling with consistency models trained on
 batch_size = 1024 for improved stability.
 </p>
 
