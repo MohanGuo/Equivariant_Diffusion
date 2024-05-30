@@ -2,10 +2,7 @@
 
 ### P. Bartak, L. Cadigan, M. Guo, M. Sedlacek, A. Vozikis
 
-In this blog post, we present and discuss the seminal paper ["Equivariant Diffusion for Molecule Generation in 3D"](https://arxiv.org/abs/2203.17003) [1],
-which presented an Equivariant Diffusion Model (EDM). This was a novel approach at time, which trained a diffusion model
-with an Equivariant Graph Neural Network (EGNN) backbone for molecule generation in 3D. EDM showed strong improvement
-over other generative methods at the time, and inspired many subsequent works in the field [22, 23, 24, 25].
+In this blog post, we present and discuss the seminal paper ["Equivariant Diffusion for Molecule Generation in 3D"](https://arxiv.org/abs/2203.17003) [1], which presented an Equivariant Diffusion Model (EDM). Diffusion models are trained to remove noise from data. After training, the model can take in a sample of random noise and sequentially denoise the sample until it generates new data (in this case, it generates a molecule). Hoogeboom et al (2022) trained a diffusion model with an Equivariant Graph Neural Network (EGNN) backbone for molecule generation in 3D, a novel approach at the time. EDM inspired many subsequent works in the field [22, 23, 24, 25] and showed strong improvement over other generative methods at the time. EDM has a downside: the sequential denoising during generation can take a large amount of time, creating a large computational burden.
 
 <!---
 We hope to give the reader an easy-to-understand overview of the underlying theory and core ideas of the EDM paper, leading
