@@ -739,7 +739,15 @@ We found that our Jax model took only 62% of the time that our pytorch model too
 
 ## Conclusion
 
-In conclusion, we successfully reimplemented the original paper. We attempted to improve on the original paper by reimplementing in JAX. While our model was significantly faster, it did not achieve competitive results. Next, we implemented a consistency model to generate new molecules. This allowed us to one step sample from pure noise to molecule. The consistency model similarly did not achieve competitive results. Although the results were not state of the art, we are confident that these methods could achieve better performance if we continued to work on them. As a first future step, we would like to simply improve the performance of these models.
+In conclusion, we largely succeeded in reimplementing the EDM paper in JAX, leading to faster runtime, but 
+un-competitive results. Similarly, we implemented and trained EDM as a consistency model, allowing us to 
+generate new molecules much in a single step, however, we did not manage to make multi-step generation work. 
+As such, the consistency model also did not achieve competitive results. 
+
+Although the results are not close to state of the art, we are confident that these methods can achieve better performance 
+with more development time, and in their current state, can serve as a good proof of concept. A natural direction
+for future research is to continue investigating the poor performance of the current implementation and fix the
+underlying issues and suspected bugs to get competitive results.
 
 ## Author's Contributions
 
