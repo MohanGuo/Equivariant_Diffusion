@@ -290,7 +290,8 @@ which specialized in 3D molecular generation [1]. The authors used a DDPM-based 
 for predicting both continuous (atom coordinates) and categorical features (atom types).
 
 As we have hinted earlier in the EGNN section, molecules are naturally equivariant to E(3) rotations and translation 
-while being easily represented with a graph. The categorical atomic properties are already invariant to E(3) 
+while being easily represented with a graph. By E(3) we refer to the Euclidean group in three dimensions, which includes all transformations (rotations, translations, and reflections) that preserve Euclidean distances in three-dimensional space.
+ The categorical atomic properties are already invariant to E(3) 
 transformations, hence they can be generated with a regular diffusion. For the generated atom positions however, 
 we need to specifically ensure this equivariance to rotations and translations throughout the diffusion process.
 
