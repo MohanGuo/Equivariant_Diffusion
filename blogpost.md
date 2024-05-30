@@ -2,23 +2,20 @@
 
 ### P. Bartak, L. Cadigan, M. Guo, M. Sedlacek, A. Vozikis
 
-In this blog post, we present and discuss the seminal paper ["Equivariant Diffusion for Molecule Generation in 3D"](https://arxiv.org/abs/2203.17003) [1], which presented an Equivariant Diffusion Model (EDM). Diffusion models are trained to remove noise from data. After training, the model can take in a sample of random noise and sequentially denoise the sample until it generates new data (in this case, it generates a molecule). Hoogeboom et al (2022) trained a diffusion model with an Equivariant Graph Neural Network (EGNN) backbone for molecule generation in 3D, a novel approach at the time. EDM inspired many subsequent works in the field [22, 23, 24, 25] and showed strong improvement over other generative methods at the time. EDM has a downside: the sequential denoising during generation can take a large amount of time, creating a large computational burden.
+In this blog post, we present and discuss the seminal paper ["Equivariant Diffusion for Molecule Generation in 3D"](https://arxiv.org/abs/2203.17003) [1], which presented an Equivariant Diffusion Model (EDM). Diffusion models are trained to remove noise from data. After training, the model can take in a sample of random noise and sequentially denoise the sample until it generates new data (in this case, it generates a molecule). Hoogeboom et al (2022) trained a diffusion model with an Equivariant Graph Neural Network (EGNN) backbone for molecule generation in 3D, a novel approach at the time. EDM inspired many subsequent works in the field [22, 23, 24, 25] and showed strong improvement over other generative methods at the time. EDM has a downside: the sequential denoising during generation can take a large amount of time, creating a large computational burden [5].
 
 <!---
 We hope to give the reader an easy-to-understand overview of the underlying theory and core ideas of the EDM paper, leading
 to a better understanding of core topics in generative modelling and geometric deep learning.
 --->
 
-We also present two extensions, aimed to increase the speed of the EDM and uncap its potential:
+We present two extensions, aimed to increase the speed of the EDM and uncap its potential:
 
 1. Training EDM as a Consistency Model [5]
 2. Faster implementation of the EDM with JAX [17]
 
 Consistency models enable the model to generate samples in a single step. This can be much faster than the
-sequential sampling that has been a known bottleneck for diffusion models [5]. By implementing JAX, we can
-make the model even faster. JAX has been shown to improve the speed of certain diffusion models by large amounts,
-with one study finding a 5x speed improvement [28]. JAX tends to improve the performance of models that require regular,
-repetitive computations, making a diffusion model a good candidate for Jax reimplementation.
+sequential sampling of diffusion models. In conjunction with this, we can make the model even faster by implementing JAX. JAX has been shown to improve the speed of certain diffusion models by large amounts, with one study finding a 5x speed improvement in a comparable diffusion model [28]. JAX tends to improve the performance of models that require regular, repetitive computations, making a diffusion models a good candidate for Jax reimplementation.
 
 <!---
 Many previous works across various domains have shown that scaling model architectures to more parameter can significantly
@@ -56,8 +53,8 @@ Generating molecules naturally leans itself into graph representation, with the 
 molecules, and edges representing their bonds. The features $\mathbf{h}_i \in \mathcal{R}^d$ of each atom, such as
 element type, can then be encoded into the embedding of a node alongside it's position $\mathbf{x}_i \in \mathcal{R}^3$.
 Moreover, molecules in the real world naturally have the property of E(3) equivariance, preserving their structure and
-features regardless of translations and rotations . Hence, EGNNs are a powerful tool for injecting these inductive
-priors about molecules into the model architecture itself, as the EDM paper had demonstrated [1], and further supported
+features regardless of translations and rotations . Hence, EGNNs are a powerful tool which inject these inductive
+priors about molecules into the model architecture itself, as the EDM paper had demonstrated [1]. Their usefulness is further supported
 by EGNNs beating similar non-equivariant Graph Convolution Networks on molecular generation tasks [27].
 
 The E(n) EGNN is a special type of message-passing Graph Neural Network (GNN) [31] with explicit rotation
