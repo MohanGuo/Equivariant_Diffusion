@@ -742,19 +742,17 @@ We strongly suspect that the inferior performance of the Jax model results from 
 The jax model has a relatively high loss initially, but converges quickly to a comparable level as pytorch model. At the meantime, the atom stability flunctuates a lot while the molecule stability keeps zero. It is possible that we still need some fine-tuning to get a better performance in evaluation metric, since the training process is totally different as can be seen from the loss curve.
 
 <p align="center">
-  <img src="readme_material/results_consistency_atom_stability.png" alt="Diffusion in nature" width="250" />
+  <img src="readme_material/test_loss.png" alt="Test Loss of jax model" width="250" />
 </p>
 <p align="center">
-Figure nTBA: Best results for atom stability metric using single-step sampling with consistency models trained on
-batch_size = 1024 for improved stability.
+Figure nTBA: Test Loss curve of jax model
 </p>
 
 <p align="center">
-  <img src="readme_material/results_consistency_atom_stability.png" alt="Diffusion in nature" width="250" />
+  <img src="readme_material/jax_atom_stab.png" alt="Atom stability of jax model" width="250" />
 </p>
 <p align="center">
-Figure nTBA: Best results for atom stability metric using single-step sampling with consistency models trained on
-batch_size = 1024 for improved stability.
+Figure nTBA: Best results for atom stability metric of jax model
 </p>
 
 We found that our Jax model took only 62% of the time that our pytorch model took for a training epoch with a small model (diffusion_steps=200). We view this number as a reasonable floor for the speed improvement that Jitting can have. For example, our code still spent a lot of time recompiling, as we found when we ran the code with debug flag `JAX_LOG_COMPILES=1`. We believe we can reduce this recompilation. Moreover, we believe that we could parallelize our code better. Our code runs operations on batches of inputs (just as the original pytorch version did). We could change the code to run on single inputs, and then use `jax.pmap` to parallelize, which might result in better performance. There are also a number of smaller optimizations that we could make given time.
