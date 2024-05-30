@@ -2,13 +2,13 @@
 
 ### P. Bartak, L. Cadigan, M. Guo, M. Sedlacek, A. Vozikis
 
-In this blog post, we present and discuss the seminal paper ["Equivariant Diffusion for Molecule Generation in 3D"](https://arxiv.org/abs/2203.17003) [1], 
+In this blog post, we present and discuss the seminal paper ["Equivariant Diffusion for Molecule Generation in 3D"](https://arxiv.org/abs/2203.17003) [9], 
 which presented an Equivariant Diffusion Model (EDM). The authors trained a diffusion model with an 
 Equivariant Graph Neural Network (EGNN) backbone to generate 3D molecules, a novel approach, which 
 demonstrated strong improvement over other (non-diffusion based) generative methods at the time.
-This inspired many subsequent works in the field [22, 23, 24, 25]. However, this method has a major 
+This inspired many subsequent works in the field [1, 4, 10, 31]. However, this method has a major 
 downside: the sequential denoising process of diffusion models can take a large amount of time and compute, 
-bottle-necking their performance [5].
+bottle-necking their performance [25].
 
 <!---
 Diffusion models are typically trained to generate data samples 
@@ -22,13 +22,13 @@ to a better understanding of core topics in generative modelling and geometric d
 
 We present two extensions, aimed to increase the speed of the EDM and uncap its potential:
 
-1. Training EDM as a Consistency Model [5]
-2. Faster implementation of the EDM with JAX [17]
+1. Training EDM as a Consistency Model [25]
+2. Faster implementation of the EDM with JAX [2]
 
 Consistency models enable the model to generate samples in a single step, which can be much faster than the sequential 
 sampling in diffusion models. In conjunction with this, we can make the model even faster by implementing the model 
 using the JAX framework. JAX has been shown to improve the speed of certain diffusion models by large amounts, with 
-one study finding a 5x speed improvement in a comparable diffusion model [28]. JAX tends to improve the performance 
+one study finding a 5x speed improvement in a comparable diffusion model [12]. JAX tends to improve the performance 
 of models that require regular, repetitive computations such as diffusion models. 
 
 <!---
@@ -43,8 +43,8 @@ the need to scale or upgrade hardware extensively.
 
 This increase in efficiency serves several purposes. Most importantly, increased performance enables us to use larger
 models with the same amount of compute. Many previous works across various domains have shown that scaling model
-architectures to more parameters can significantly improve performance [2, 3, 4] in domains including language [4, 20, 21]
-as well as images and video [10, 11, 12, 13]. Similar scaling effect was observed in Graph Neural Networks (GNN) [19].
+architectures to more parameters can significantly improve performance [5, 11, 15] in domains including language [3, 11, 29]
+as well as images and video [16, 18, 19, 21]. Similar scaling effect was observed in Graph Neural Networks (GNN) [28].
 We hope that, by improving the speed of our models, we can enable the use of larger GNN backbones without requiring
 more expensive compute. Even without compute constraints, increasing speed hastens development and decreases
 the carbon footprint overall.
@@ -60,11 +60,11 @@ Formally, function $f$ is said to be equivariant to the action of a group $G$ if
 
 $$T_g(f(x)) = f(S_g(x)) \qquad \text{(1)}$$ 
 
-for all $g ∈ G$, where $S_g,T_g$ are linear representations related to the group element $g$ [32]. The three transformations we are interested in form the Euclidean group $E(3)$, for which $S_g$ and $T_g$ can be represented by a translation $t$ and an orthogonal matrix $R$ that rotates or reflects coordinates. $f$ is then equivariant to a rotation or reflection $R$ if: 
+for all $g ∈ G$, where $S_g,T_g$ are linear representations related to the group element $g$ [22]. The three transformations we are interested in form the Euclidean group $E(3)$, for which $S_g$ and $T_g$ can be represented by a translation $t$ and an orthogonal matrix $R$ that rotates or reflects coordinates. $f$ is then equivariant to a rotation or reflection $R$ if: 
 
 $$Rf(x) = f(Rx) \qquad \text{(2)}$$
 
-meaning transforming its input results in an equivalent transformation of its output. [1]
+meaning transforming its input results in an equivalent transformation of its output. [9]
 
 ## E(n) Equivariant Graph Neural Networks (EGNNs)
 
@@ -79,10 +79,10 @@ An EGNN takes in a graph where some noise has been added and attempts to remove 
 
 Generating molecules naturally leans itself into graph representation, with the nodes representing atoms within the
 molecules, and edges representing their bonds. The features $\mathbf{h}_i \in \mathbb{R}^d$ of each atom, such as
-element type, can then be encoded into the embedding of a node alongside it's position $\mathbf{x}_i \in \mathbb{R}^3$. The previously explained E(3) equivariance property can be used as an inductive prior that improves generalization, and EGNNs are a powerful tool which injects these priors about molecules into the model architecture itself, as the EDM paper had demonstrated [1]. Their usefulness is further supported
-by EGNNs beating similar non-equivariant Graph Convolution Networks on molecular generation tasks [27].
+element type, can then be encoded into the embedding of a node alongside it's position $\mathbf{x}_i \in \mathbb{R}^3$. The previously explained E(3) equivariance property can be used as an inductive prior that improves generalization, and EGNNs are a powerful tool which injects these priors about molecules into the model architecture itself, as the EDM paper had demonstrated [9]. Their usefulness is further supported
+by EGNNs beating similar non-equivariant Graph Convolution Networks on molecular generation tasks [30].
 
-The E(n) EGNN is a special type of message-passing Graph Neural Network (GNN) [31] with explicit rotation and translation equivariance baked in. A traditional message-passing GNN consists of several layers, each of which
+The E(n) EGNN is a special type of message-passing Graph Neural Network (GNN) [7] with explicit rotation and translation equivariance baked in. A traditional message-passing GNN consists of several layers, each of which
 updates the representation of each node, using the information in nearby nodes.
 
 <p align="center">
@@ -134,7 +134,7 @@ information, which remain unchanged under the group action of translation. -->
 
 ## Diffusion Models
 
-Diffusion models [18] are deeply rooted within the principles of physics, where the process describes particles moving 
+Diffusion models [24] are deeply rooted within the principles of physics, where the process describes particles moving 
 from an area of higher concentration to an area of lower concentration - a process governed by random, stochastic 
 interactions. In the physical world, this spreading can largely be traced back to the original configuration, which 
 inspired scientists to create models of this behaviour. When applied to generative modelling, we usually aim to reconstruct data from some observed or sampled noise, which is an approach adopted by many powerful diffusion models. 
@@ -286,7 +286,7 @@ Figure 4: Stochastic sampling process (noisy images on top, predicted images on 
 ## Equivariant Diffusion Models (EDM) for 3D molecule generation
 
 We will specifically focus on an E(n) equivariant diffusion model presented by the EDM paper, 
-which specialized in 3D molecular generation [1]. The authors used a DDPM-based diffusion model with an EGNN backbone 
+which specialized in 3D molecular generation [9]. The authors used a DDPM-based diffusion model with an EGNN backbone 
 for predicting both continuous (atom coordinates) and categorical features (atom types).
 
 As we have hinted earlier in the EGNN section, molecules are naturally equivariant to E(3) rotations and translation 
@@ -328,7 +328,7 @@ Figure 5: Examples of 2D roto-invariant distributions
 As the EDM authors point out, an invariant distribution composed with an equivariant invertible function results in an
 invariant distribution [14]. They further point out that if $x \sim p(x)$ is invariant to a group, and the transition probabilities
 of a Markov chain $y \sim p(y|x)$ are equivariant, then the marginal distribution of $y$ at any time step $t$ is also invariant
-to that group [15].
+to that group [32].
 
 In the case of EDM, the underlying EGNN ensures equivariance while the initial sampling distribution
 can easily be constrained to something roto-invariant, such as a simple mean zero Gaussian with diagonal
@@ -336,14 +336,14 @@ covariance matrix seen in Figure 5 (left).
 
 **Translations**
 
-It has been shown, that it is impossible to have non-zero distributions invariant to translations [16].
+It has been shown, that it is impossible to have non-zero distributions invariant to translations [27].
 Intuitively, the translation invariance property means that any point $\mathbf{x}$ results in the same assigned $p(\mathbf{x})$,
 leading to a uniform distribution, which, if stretched over an unbounded space, would be approaching zero-valued probabilities
 thus not integrating to one.
 
 The EDM authors bypass this with a clever trick of always re-centering the generated samples to have center of gravity at
 $\mathbf{0}$ and further show that these $\mathbf{0}$-centered distributions lie on a linear subspace that can reliably be used 
-for equivariant diffusion [1, 15]. 
+for equivariant diffusion [9, 32]. 
 
 
 
@@ -397,7 +397,7 @@ Since coordinates and categorical features are on different scales, the EDM auth
 ### Consistency Models
 
 
-Although diffusion Models have significantly advanced the fields of image, audio, and video generation, but they depend on an iterative de-noising process to generate samples, which can be very slow [5]. To generate good samples, a lot of steps are often required (sometimes in the 1000s). This issue is exacerbated when dealing with high dimensional data where all operations are even more computationally expensive. As hinted in the introduction, we look at Consistency models in our work to bypass this bottleneck.
+Although diffusion Models have significantly advanced the fields of image, audio, and video generation, but they depend on an iterative de-noising process to generate samples, which can be very slow [25]. To generate good samples, a lot of steps are often required (sometimes in the 1000s). This issue is exacerbated when dealing with high dimensional data where all operations are even more computationally expensive. As hinted in the introduction, we look at Consistency models in our work to bypass this bottleneck.
 
 This is where Consistency Models really shine. This new family of models reduces the number of steps during de-noising up to just a single step generation, significantly speeding up this process, while allowing for a controlled trade-off between speed and sample quality.
 
@@ -413,14 +413,14 @@ Consider the transfer of mass under the data probability distribution in time.
 Figure 6: Illustration of a bimodal distribution evolving to a Gaussian over time
 </p>
 
-Such process are often well described with a differential equation. In the next sections we look closely at the work of Yang Song [5,6] and others to examine how they leverage the existence of such an Ordinary Differential Equation (ODE) to generate strong
+Such process are often well described with a differential equation. In the next sections we look closely at the work of Yang Song [25, 26] and others to examine how they leverage the existence of such an Ordinary Differential Equation (ODE) to generate strong
 samples much faster.
 
 <br>
 
 **Modelling the noising process as an SDE**
 
-Song et al. [6] have shown that the noising process in diffusion can be described with a Stochastic Differential Equation (SDE)
+Song et al. [26] have shown that the noising process in diffusion can be described with a Stochastic Differential Equation (SDE)
 transforming the data distribution $p_{\text{data}}(\mathbf{x})$:
 
 $$d\mathbf{x}_t = \mathbf{\mu}(\mathbf{x}_t, t) dt + \sigma(t) d\mathbf{w}_t \qquad \text{(23)}$$
@@ -437,14 +437,14 @@ Typically, this SDE is designed such that $p_T(\mathbf{x})$ at the final time-st
 **Existence of the PF ODE**
 
 This SDE has a remarkable property, that a special ODE exists, whose trajectories sampled at $t$ are distributed
-according to $p_t(\mathbf{x})$ [5]:
+according to $p_t(\mathbf{x})$ [25]:
 
 $$d\mathbf{x}_t = \left[ \mathbf{\mu}(\mathbf{x}_t, t) - \frac{1}{2} \sigma(t)^2 \nabla \log p_t(\mathbf{x}_t) \right] dt \qquad \text{(24)}$$
 
-This ODE is dubbed the Probability Flow (PF) ODE by Song et al. [5] and corresponds to the different view of diffusion
+This ODE is dubbed the Probability Flow (PF) ODE by Song et al. [25] and corresponds to the different view of diffusion
 manipulating probability mass over time we hinted at in the beginning of the section.
 
-A score model $s_\phi(\mathbf{x}, t)$ can be trained to approximate $\nabla log p_t(\mathbf{x})$ via score matching [5].
+A score model $s_\phi(\mathbf{x}, t)$ can be trained to approximate $\nabla log p_t(\mathbf{x})$ via score matching [25].
  <!-- and following Karras et al. [7] it is -->
 Since we know the parametrization of the final distribution $p_T(\mathbf{x})$ to be a standard Gaussian parametrized with $\mathbf{\mu}=0$ and $\sigma(t) = \sqrt{2t}$, this score model can be plugged into the equation (24) and the expression reduces itself to an empirical estimate of the PF ODE:
 
@@ -465,13 +465,13 @@ Figure 7: Solution trajectories of the PF ODE. [5]
 **Solving the PF ODE**
 
 In Figure 7 the "Noise" distribution corresponds to $p_T(\mathbf{x})$ and the "Data" distribution is treated as one at $t=\epsilon$
-very close to time zero. For numerical stability we want to avoid explicitly having $t=0$ [7].
+very close to time zero. For numerical stability we want to avoid explicitly having $t=0$ [13].
 
-Following Karras et al. [7], the time horizon $[\epsilon, T]$ is discretized into $N-1$ sub-intervals with
+Following Karras et al. [13], the time horizon $[\epsilon, T]$ is discretized into $N-1$ sub-intervals with
 boundaries $t_1 = \epsilon < t_2 < \cdots < t_N = T$. This improves performance and stability over treating time as a
 continuous variable.
 
-In practice, the following formula is most often used to determine these boundaries [7]:
+In practice, the following formula is most often used to determine these boundaries [13]:
 
 $$t_i = \left(\epsilon^{1/\rho} + \frac{i - 1}{N - 1}(T^{1/\rho} - \epsilon^{1/\rho})\right)^\rho \qquad \text{(26)}$$
 
@@ -509,14 +509,14 @@ being enforced with this self-consistency property during training.
 **Boundary Condition & Function Parametrization**
 
 For any consistency function $f(\cdot, \cdot)$, we must have $f(x_\epsilon, \epsilon) = x_\epsilon$, i.e., $f(\cdot, 
-\epsilon)$ being an identity function. This constraint is called the _boundary condition_ [5].
+\epsilon)$ being an identity function. This constraint is called the _boundary condition_ [25].
 
 The boundary condition has to be met by all consistency models, as we have hinted before that much of the training relies
 on the assumption that $p_\epsilon$ is borderline identical to $p_0$. However, it is also a big architectural
 constraint on consistency models.
 
 For consistency models based on deep neural networks, there are two ways to implement this boundary condition almost
-for free [5]. Suppose we have a free-form deep neural network $F_\theta (x, t)$ whose output has the same dimensionality
+for free [25]. Suppose we have a free-form deep neural network $F_\theta (x, t)$ whose output has the same dimensionality
 as $x$.
 
 1.) One way is to simply parameterize the consistency model as:
@@ -575,7 +575,7 @@ where $x \sim p_\text{data}$ and $x_t \sim \mathcal{N}(x; t^2 I)$.
 
 That is, given $x$ and $x_t$, we can estimate $\nabla \log p_t(x_t)$ with $-(x_t - x) / t^2$.
 This unbiased estimate suffices to replace the pre-trained diffusion model in consistency distillation
-when using the Euler ODE solver in the limit of $N \to \infty$ [5].
+when using the Euler ODE solver in the limit of $N \to \infty$ [25].
 
 <!---
 **Theorem 2.** Let $`\Delta t := max_{n \in [1, N-1]} |t_{n+1} - t_n|`$. Assume $d$ and $f_{\theta^-}$ are both
@@ -589,7 +589,7 @@ where the expectation is taken with respect to $`\mathbf{x} \sim p_\text{data}`$
 and $`x_{t_{n+1}} \sim \mathcal{N}(x; t_n^2 I)`$.
 --->
 
-Song et al. [5] justify this with a further theorem in their paper and show that the consistency training objective (CT loss)
+Song et al. [25] justify this with a further theorem in their paper and show that the consistency training objective (CT loss)
 can then be defined as:
 
 <p align="center">
@@ -670,7 +670,7 @@ To accelerate the training process, the training steps per epoch are compiled us
 
 ### Dataset & Metrics
 
-The QM9 dataset[29, 30] (Quantum Machine 9) is a commonly used dataset containing the molecular properties and atomic 
+The QM9 dataset[17, 20] (Quantum Machine 9) is a commonly used dataset containing the molecular properties and atomic 
 coordinates for 133,885 small molecules, along with computed geometric, energetic, electronic, and thermodynamic 
 properties. Each molecule contains up to 9 heavy atoms (with up to 29 atoms in total, including hydrogen). In this 
 experiment, we train the EDM model to generate molecules with 3D coordinates and atom types (H, C, N, O, F). Other, 
@@ -767,66 +767,66 @@ Anthonis: Consistency models
 
 ## Bibliography
 
-[1] Hoogeboom, E., Garcia Satorras, V., Vignac, C., & Welling, M. (2022). Equivariant Diffusion for Molecule Generation in 3D. arXiv. https://arxiv.org/abs/2203.17003
+[1] Anstine, D. M., & Isayev, O. (2023). Generative models as an emerging paradigm in the chemical sciences. Journal of the American Chemical Society, 145(16), 8736-8750. https://doi.org/10.1021/jacs.2c13467
 
-[2] Krizhevsky, A., Sutskever, I., & Hinton, G. E. (2012). ImageNet Classification with Deep Convolutional Neural Networks. In F. Pereira, C. J. Burges, L. Bottou, & K. Q. Weinberger (Eds.), Advances in Neural Information Processing Systems (Vol. 25). Curran Associates, Inc. Retrieved from https://proceedings.neurips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf
+[2] Bradbury, J., Frostig, R., Hawkins, P., Johnson, M. J., Leary, C., Maclaurin, D., Necula, G., Paszke, A., VanderPlas, J., Wanderman-Milne, S., & Zhang, Q. (2018). JAX: Composable transformations of Python+NumPy programs (Version 0.3.13) [Software]. Retrieved from http://github.com/google/jax
 
-[3] Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Unterthiner, T., ... Houlsby, N. (2020). An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale. CoRR, abs/2010.11929. Retrieved from https://arxiv.org/abs/2010.11929
+[3] Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., Neelakantan, A., Shyam, P., Sastry, G., Askell, A., Agarwal, S., Herbert-Voss, A., Krueger, G., Henighan, T., Child, R., Ramesh, A., Ziegler, D. M., Wu, J., Winter, C., Hesse, C., ... Amodei, D. (2020). Language models are few-shot learners. arXiv. https://arxiv.org/abs/2005.14165
 
-[4] Kaplan, J., McCandlish, S., Henighan, T., Brown, T. B., Chess, B., Child, R., ... Amodei, D. (2020). Scaling Laws for Neural Language Models. CoRR, abs/2001.08361. Retrieved from https://arxiv.org/abs/2001.08361
+[4] Corso, G., Stärk, H., Jing, B., Barzilay, R., & Jaakkola, T. (2023). DiffDock: Diffusion steps, twists, and turns for molecular docking. arXiv. https://arxiv.org/abs/2210.01776
 
-[5] Song, Y., Dhariwal, P., Chen, M., & Sutskever, I. (2023). Consistency Models. arXiv. https://arxiv.org/abs/2303.01469
+[5] Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Unterthiner, T., ... Houlsby, N. (2020). An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale. CoRR, abs/2010.11929. Retrieved from https://arxiv.org/abs/2010.11929
 
-[6] Song, Y., Sohl-Dickstein, J., Kingma, D. P., Kumar, A., Ermon, S., and Poole, B. Score-based generative modeling through stochastic differential equations. In International Conference on Learning Representations, 2021. URL https://openreview.net/forum?id=PxTIG12RRHS.
+[6] Fan, Z., Yang, Y., Xu, M., & Chen, H. (2023). EC-Conf: An Ultra-fast Diffusion Model for Molecular Conformation Generation with Equivariant Consistency. arXiv. https://arxiv.org/abs/2308.00237
 
-[7] Karras, T., Aittala, M., Aila, T., & Laine, S. (2022). Elucidating the Design Space of Diffusion-Based Generative Models. arXiv. https://arxiv.org/abs/2206.00364
+[7] Gilmer, J., Schoenholz, S. S., Riley, P. F., Vinyals, O., & Dahl, G. E. (2017). Neural message passing for quantum chemistry. In International Conference on Machine Learning (pp. 1263–1272). PMLR.
 
 [8] Ho, J., Jain, A., & Abbeel, P. (2020). Denoising Diffusion Probabilistic Models. CoRR, abs/2006.11239. Retrieved from https://arxiv.org/abs/2006.11239
 
-[9] Fan, Z., Yang, Y., Xu, M., & Chen, H. (2023). EC-Conf: An Ultra-fast Diffusion Model for Molecular Conformation Generation with Equivariant Consistency. arXiv. https://arxiv.org/abs/2308.00237
+[9] Hoogeboom, E., Garcia Satorras, V., Vignac, C., & Welling, M. (2022). Equivariant Diffusion for Molecule Generation in 3D. arXiv. https://arxiv.org/abs/2203.17003
 
-[10] Saharia, C., Chan, W., Saxena, S., Li, L., Whang, J., Denton, E., Ghasemipour, S. K. S., Ayan, B. K., Mahdavi, S. S., Lopes, R. G., Salimans, T., Ho, J., Fleet, D. J., & Norouzi, M. (2022). Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding. arXiv. https://arxiv.org/abs/2205.11487
+[10] Igashov, I., Stärk, H., Vignac, C., Schneuing, A., Satorras, V. G., Frossard, P., Welling, M., Bronstein, M., & Correia, B. (2024). Equivariant 3D-conditional diffusion model for molecular linker design. Nature Machine Intelligence, 6(4), 417-427. https://doi.org/10.1038/s42256-024-00815-9
 
-[11] Ramesh, A., Dhariwal, P., Nichol, A., Chu, C., & Chen, M. (2022). Hierarchical text-conditional image generation with CLIP latents. arXiv. https://arxiv.org/abs/2204.06125
+[11] Kaplan, J., McCandlish, S., Henighan, T., Brown, T. B., Chess, B., Child, R., ... Amodei, D. (2020). Scaling Laws for Neural Language Models. CoRR, abs/2001.08361. Retrieved from https://arxiv.org/abs/2001.08361
 
-[12] Rombach, R., Blattmann, A., Lorenz, D., Esser, P., & Ommer, B. (2022). High-resolution image synthesis with latent diffusion models. arXiv. https://arxiv.org/abs/2112.10752
+[12] Kang, B., Ma, X., Du, C., Pang, T., & Yan, S. (2024). Efficient diffusion policies for offline reinforcement learning. Advances in Neural Information Processing Systems, 36.
 
-[13] Liu, Y., Zhang, K., Li, Y., Yan, Z., Gao, C., Chen, R., Yuan, Z., Huang, Y., Sun, H., Gao, J., He, L., & Sun, L. (2024). Sora: A review on background, technology, limitations, and opportunities of large vision models. arXiv. https://arxiv.org/abs/2402.17177
+[13] Karras, T., Aittala, M., Aila, T., & Laine, S. (2022). Elucidating the Design Space of Diffusion-Based Generative Models. arXiv. https://arxiv.org/abs/2206.00364
 
 [14] Köhler, J., Klein, L., & Noé, F. (2020). Equivariant flows: Exact likelihood generative learning for symmetric densities. In Proceedings of the 37th International Conference on Machine Learning (ICML) (Vol. 119, pp. 5361–5370). PMLR.
 
-[15] Xu, M., Yu, L., Song, Y., Shi, C., Ermon, S., & Tang, J. (2022). Geodiff: A geometric diffusion model for molecular conformation generation. In Proceedings of the International Conference on Learning Representations. Retrieved from https://openreview.net/forum?id=PzcvxEMzvQC
+[15] Krizhevsky, A., Sutskever, I., & Hinton, G. E. (2012). ImageNet Classification with Deep Convolutional Neural Networks. In F. Pereira, C. J. Burges, L. Bottou, & K. Q. Weinberger (Eds.), Advances in Neural Information Processing Systems (Vol. 25). Curran Associates, Inc. Retrieved from https://proceedings.neurips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf
 
-[16] Satorras, V. G., Hoogeboom, E., Fuchs, F., Posner, I., & Welling, M. (2021). E(n) equivariant normalizing flows. In Advances in Neural Information Processing Systems, 34.
+[16] Liu, Y., Zhang, K., Li, Y., Yan, Z., Gao, C., Chen, R., Yuan, Z., Huang, Y., Sun, H., Gao, J., He, L., & Sun, L. (2024). Sora: A review on background, technology, limitations, and opportunities of large vision models. arXiv. https://arxiv.org/abs/2402.17177
 
-[17] Bradbury, J., Frostig, R., Hawkins, P., Johnson, M. J., Leary, C., Maclaurin, D., Necula, G., Paszke, A., VanderPlas, J., Wanderman-Milne, S., & Zhang, Q. (2018). JAX: Composable transformations of Python+NumPy programs (Version 0.3.13) [Software]. Retrieved from http://github.com/google/jax
+[17] Ramakrishnan, R., Dral, P. O., Rupp, M., & Von Lilienfeld, O. A. (2014). Quantum chemistry structures and properties of 134 kilo molecules. Scientific data, 1(1), 1-7.
 
-[18] Sohl-Dickstein, J., Weiss, E. A., Maheswaranathan, N., & Ganguli, S. (2015). Deep unsupervised learning using nonequilibrium thermodynamics. CoRR, abs/1503.03585. Retrieved from http://arxiv.org/abs/1503.03585
+[18] Ramesh, A., Dhariwal, P., Nichol, A., Chu, C., & Chen, M. (2022). Hierarchical text-conditional image generation with CLIP latents. arXiv. https://arxiv.org/abs/2204.06125
 
-[19] Sriram, A., Das, A., Wood, B. M., Goyal, S., & Zitnick, C. L. (2022). Towards training billion parameter graph neural networks for atomic simulations. arXiv. https://arxiv.org/abs/2203.09697
+[19] Rombach, R., Blattmann, A., Lorenz, D., Esser, P., & Ommer, B. (2022). High-resolution image synthesis with latent diffusion models. arXiv. https://arxiv.org/abs/2112.10752
 
-[20] Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., Neelakantan, A., Shyam, P., Sastry, G., Askell, A., Agarwal, S., Herbert-Voss, A., Krueger, G., Henighan, T., Child, R., Ramesh, A., Ziegler, D. M., Wu, J., Winter, C., Hesse, C., ... Amodei, D. (2020). Language models are few-shot learners. arXiv. https://arxiv.org/abs/2005.14165
+[20] Ruddigkeit, L., van Deursen, R., Blum, L. C. & Reymond, J.-L. (2012). Enumeration of 166 billion organic small molecules in the chemical universe database GDB-17. J. Chem. Inf. Model. 52, 2864–2875.
 
-[21] Touvron, H., Lavril, T., Izacard, G., Martinet, X., Lachaux, M.-A., Lacroix, T., Rozière, B., Goyal, N., Hambro, E., Azhar, F., Rodriguez, A., Joulin, A., Grave, E., & Lample, G. (2023). LLaMA: Open and efficient foundation language models. arXiv. https://arxiv.org/abs/2302.13971
+[21] Saharia, C., Chan, W., Saxena, S., Li, L., Whang, J., Denton, E., Ghasemipour, S. K. S., Ayan, B. K., Mahdavi, S. S., Lopes, R. G., Salimans, T., Ho, J., Fleet, D. J., & Norouzi, M. (2022). Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding. arXiv. https://arxiv.org/abs/2205.11487
 
-[22] Anstine, D. M., & Isayev, O. (2023). Generative models as an emerging paradigm in the chemical sciences. Journal of the American Chemical Society, 145(16), 8736-8750. https://doi.org/10.1021/jacs.2c13467
+[22] Serre, J.-P. (1977). Linear representations of finite groups (Vol. 42). Springer.
 
-[23] Corso, G., Stärk, H., Jing, B., Barzilay, R., & Jaakkola, T. (2023). DiffDock: Diffusion steps, twists, and turns for molecular docking. arXiv. https://arxiv.org/abs/2210.01776
+[23] Singh, V. (2023, March 6). An In-Depth Guide to Denoising Diffusion Probabilistic Models DDPM – Theory to Implementation. LearnOpenCV. https://learnopencv.com/denoising-diffusion-probabilistic-models/
 
-[24] Igashov, I., Stärk, H., Vignac, C., Schneuing, A., Satorras, V. G., Frossard, P., Welling, M., Bronstein, M., & Correia, B. (2024). Equivariant 3D-conditional diffusion model for molecular linker design. Nature Machine Intelligence, 6(4), 417-427. https://doi.org/10.1038/s42256-024-00815-9
+[24] Sohl-Dickstein, J., Weiss, E. A., Maheswaranathan, N., & Ganguli, S. (2015). Deep unsupervised learning using nonequilibrium thermodynamics. CoRR, abs/1503.03585. Retrieved from http://arxiv.org/abs/1503.03585
 
-[25] Xu, M., Powers, A. S., Dror, R. O., Ermon, S., & Leskovec, J. (2023). Geometric latent diffusion models for 3D molecule generation. In Proceedings of the 40th International Conference on Machine Learning (pp. 38592-38610). PMLR.
+[25] Song, Y., Dhariwal, P., Chen, M., & Sutskever, I. (2023). Consistency Models. arXiv. https://arxiv.org/abs/2303.01469
 
-[26] Singh, V. (2023, March 6). An In-Depth Guide to Denoising Diffusion Probabilistic Models DDPM – Theory to Implementation. LearnOpenCV. https://learnopencv.com/denoising-diffusion-probabilistic-models/
+[26] Song, Y., Sohl-Dickstein, J., Kingma, D. P., Kumar, A., Ermon, S., and Poole, B. Score-based generative modeling through stochastic differential equations. In International Conference on Learning Representations, 2021. URL https://openreview.net/forum?id=PxTIG12RRHS.
 
-[27] Verma, Y., Kaski, S., Heinonen, M., & Garg, V. (2022). Modular flows: Differential molecular generation. Advances in neural information processing systems, 35, 12409-12421.
+[27] Satorras, V. G., Hoogeboom, E., Fuchs, F., Posner, I., & Welling, M. (2021). E(n) equivariant normalizing flows. In Advances in Neural Information Processing Systems, 34.
 
-[28] Kang, B., Ma, X., Du, C., Pang, T., & Yan, S. (2024). Efficient diffusion policies for offline reinforcement learning. Advances in Neural Information Processing Systems, 36.
+[28] Sriram, A., Das, A., Wood, B. M., Goyal, S., & Zitnick, C. L. (2022). Towards training billion parameter graph neural networks for atomic simulations. arXiv. https://arxiv.org/abs/2203.09697
 
-[29] Ramakrishnan, R., Dral, P. O., Rupp, M., & Von Lilienfeld, O. A. (2014). Quantum chemistry structures and properties of 134 kilo molecules. Scientific data, 1(1), 1-7.
+[29] Touvron, H., Lavril, T., Izacard, G., Martinet, X., Lachaux, M.-A., Lacroix, T., Rozière, B., Goyal, N., Hambro, E., Azhar, F., Rodriguez, A., Joulin, A., Grave, E., & Lample, G. (2023). LLaMA: Open and efficient foundation language models. arXiv. https://arxiv.org/abs/2302.13971
 
-[30] Ruddigkeit, L., van Deursen, R., Blum, L. C. & Reymond, J.-L. (2012). Enumeration of 166 billion organic small molecules in the chemical universe database GDB-17. J. Chem. Inf. Model. 52, 2864–2875.
+[30] Verma, Y., Kaski, S., Heinonen, M., & Garg, V. (2022). Modular flows: Differential molecular generation. Advances in neural information processing systems, 35, 12409-12421.
 
-[31] Gilmer, J., Schoenholz, S. S., Riley, P. F., Vinyals, O., & Dahl, G. E. (2017). Neural message passing for quantum chemistry. In International Conference on Machine Learning (pp. 1263–1272). PMLR.
+[31] Xu, M., Powers, A. S., Dror, R. O., Ermon, S., & Leskovec, J. (2023). Geometric latent diffusion models for 3D molecule generation. In Proceedings of the 40th International Conference on Machine Learning (pp. 38592-38610). PMLR.
 
-[32] Serre, J.-P. (1977). Linear representations of finite groups (Vol. 42). Springer.
+[32] Xu, M., Yu, L., Song, Y., Shi, C., Ermon, S., & Tang, J. (2022). Geodiff: A geometric diffusion model for molecular conformation generation. In Proceedings of the International Conference on Learning Representations. Retrieved from https://openreview.net/forum?id=PzcvxEMzvQC
