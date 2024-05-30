@@ -692,16 +692,7 @@ We found that our Jax model took only 62% of the time that our pytorch model too
 
 ## Conclusion
 
-In conclusion, re-implementing Diffusion model and more specifically Denoising Diffusion Probabilistic Models, 
-with an EGNN as backbone allowed us to verify the original authors claim. At the same time, by leveraging JAX, 
-the training and inference times should be reduced due to JAX's just in time compilation, but due to tight schedule 
-
-we didn't have time to verify how big is the difference between author's implementation in PyTorch and our own. 
-Finally, we extended the original scientific paper and instead of using diffusion models, we were able to get 
-consistency models to work for an EGNN as a skeleton, by training in isolation. This allowed us to one step 
-sample from pure noise to molecule. Although the results were not state of the art, considering the timeframe 
-we were working on the extension, we are very confident a better stability metric can be achieved, and we leave 
-it for future research.
+In conclusion, we successfully reimplemented the original paper. We attempted to improve on the original paper by reimplementing in JAX. While our model was significantly faster, it did not achieve competitive results. Next, we implemented a consistency model to generate new molecules. This allowed us to one step sample from pure noise to molecule. The consistency model similarly did not achieve competitive results. Although the results were not state of the art, we are confident that these methods could achieve better performance if we continued to work on them. As a first future step, we would like to simply improve the performance of these models.
 
 ## Author's Contributions
 
