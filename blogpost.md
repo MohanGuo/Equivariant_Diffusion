@@ -690,53 +690,18 @@ not reach atom stability higher than 13%. Further research is needed in order to
 scope of the course and the timeframe of the experiment we showed that indeed EGNN can be modified to work with
 consistency models in the spot of Diffusion models.
 
-### JAX EDM Results
+### Results
 
-Although we are still running our implementation since the limitation of time and computational resources, we have some interesting findings.
+Due to time constraints, we were unable to tune either of our models to the level of the previous pytorch implementation. After training, the consistency model achieved an atom stability of ___ while the Jax model achieved an atom stability of ____. Neither of these are competitive with the reported value in the paper, _____. We strongly suspect that the inferior performance of the Jax model results from a bug in our code, which we are still attempting to identify. 
 
-The general trend of results is:
-The Jax model trains (loss converges) although the initial loss is very large compared with pytorch loss. This might be due to the different 
-initialization method as well as randomization method in jax. Our results are not as good as pytorch results. We've not yet checked with 
-enough epochs due to the limitation of computational resources and time. More metric is waiting to be evaluated.
-
-Jax (with jit) is much faster than Jax (without jit), but takes about 50% longer than pytorch.
-
-The epoch time decreases with training, which means jitting does speeding up the computation. 
-However, we had expected that the Jitted model would be faster than the Pytorch model. We cannot draw any overarching 
-conclusions, as we have not finished optimizing our Jitted model. First, we believe we can reduce the amount of 
-time spent on recompilation. Running the code with debug flag JAX_LOG_COMPILES=1, we found that a lot of time is 
-spent recompiling, which we believe we can optimize. Moreover, we could parallelize our code better. Our code runs operations on batches of inputs 
-(just as the original pytorch version did). We could change the code to run on 
-single inputs, and then use jax.pmap to parallelize, which might result in better performance. There are also a 
-number of smaller optimizations that we could make given time.
-Despite potential future improvements, this implementation shows promise for accelerating performance on larger 
-molecules or datasets due to the characteristics of just-in-time compilation.
-
-<!-- For the sake of speed benchmarking, we ran the JAX, Jax with jitting and pytorch models using toy 
-hyperparameters, as reported in []. Because we have not finished fine-tuning our jax implementation, we decided 
-to not waste resources by testing with more realistic hyperparameters.  -->
-
-<!--
-For the hyperparameters, we report the losses and the times of our Pytorch, Jax (without Jit), and Jax (with Jit) 
-implementations. Notably, Jax without jitting took far longer than Pytorch. Jax with jitting was significantly 
-faster than without, but still took considerably longer.
-
-We believe that the JAX model should be faster for this model. Currently, our Jax with jit implementation uses 
-batches for most of its computations. We might get better results if we designed our computations to be non-batch 
-and have jax batch it, which might get better performance. Morever, we suspect that one function is recompiling a 
-lot and attempted to locate this function using traces and JAX_LOG_COMPILES=1. Unfortunately, we ran out of time 
-for both approaches.  
--->
-
-<!-- Maybe also mention dataset considerations -->
+We have, however, found that our Jax model took only 62% of the time that our pytorch model took for a training epoch with a small model (diffusion_steps=200). We view this number as a reasonable floor for the speed improvement that Jitting can have. For example, our code still spent a lot of time recompiling, as we found when we ran the code with debug flag JAX_LOG_COMPILES=1. We believe can reduce this recompilation. Moreover, we believe that we could parallelize our code better. Our code runs operations on batches of inputs (just as the original pytorch version did). We could change the code to run on single inputs, and then use jax.pmap to parallelize, which might result in better performance. There are also a number of smaller optimizations that we could make given time.
 
 ## Conclusion
-
-**NOTE**: this is still work in progress until Thursday and subject to change depending on new results
 
 In conclusion, re-implementing Diffusion model and more specifically Denoising Diffusion Probabilistic Models, 
 with an EGNN as backbone allowed us to verify the original authors claim. At the same time, by leveraging JAX, 
 the training and inference times should be reduced due to JAX's just in time compilation, but due to tight schedule 
+
 we didn't have time to verify how big is the difference between author's implementation in PyTorch and our own. 
 Finally, we extended the original scientific paper and instead of using diffusion models, we were able to get 
 consistency models to work for an EGNN as a skeleton, by training in isolation. This allowed us to one step 
