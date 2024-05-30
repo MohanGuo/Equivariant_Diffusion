@@ -56,9 +56,15 @@ models might be improved through a JAX reimplementation and many diffusion model
 
 Equivariance is a property of certain functions, which ensures that the function's output transforms in a predictable manner under collections of transformations. This property is valuable in molecular modeling, where it can be used to ensure that the properties of molecular structures are consistent with their symmetries in the real world. specifically, we are interested in ensuring that some structure is preserved in the representation of the molecule when three types of transformations are applied to it: translation, rotation, and reflection. 
 
-Formally, function $f$ is said to be equivariant to the action of a group $G$ if $T_g(f(x)) = f(S_g(x))$ for all $g ∈ G$, where $S_g,T_g$ are linear representations related to the group element $g$. [32]
+Formally, function $f$ is said to be equivariant to the action of a group $G$ if: 
 
-The three transformations we are interested in form the Euclidean group $E(3)$, for which $S_g$ and $T_g$ can be represented by a translation $t$ and an orthogonal matrix $R$ that rotates or reflects coordinates. $f$ is then equivariant to a rotation or reflection $R$ if transforming its input results in an equivalent transformation of its output, or $Rf(x) = f(Rx)$. [1]
+$$T_g(f(x)) = f(S_g(x))$$ 
+
+for all $g ∈ G$, where $S_g,T_g$ are linear representations related to the group element $g$ [32]. The three transformations we are interested in form the Euclidean group $E(3)$, for which $S_g$ and $T_g$ can be represented by a translation $t$ and an orthogonal matrix $R$ that rotates or reflects coordinates. $f$ is then equivariant to a rotation or reflection $R$ if: 
+
+$$Rf(x) = f(Rx)$$
+
+meaning transforming its input results in an equivalent transformation of its output. [1]
 
 ## E(n) Equivariant Graph Neural Networks (EGNNs)
 
