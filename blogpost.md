@@ -663,7 +663,6 @@ To accelerate the training process, the training steps per epoch are compiled us
 
 ### Experiments
 
-**NOTE**: this is still work in progress until Thursday and subject to change, hence, we do not post many of the intermediate results yet.
 
 The QM9 dataset[29, 30] (Quantum Machine 9) is a commonly used dataset containing the molecular properties and atomic 
 coordinates for 133,885 small molecules, along with computed geometric, energetic, electronic, and thermodynamic 
@@ -674,7 +673,7 @@ related datasets include QM7, QM7b, QM8, ZINC, ChEMBL, MOSES, and Tox21.
 Replicating the original paper, we use the train/validation/test splits, which divide the data into 100,000 training 
 samples, 18,000 validation samples, and 13,000 test samples. To evaluate the quality of our molecule generation, we 
 evaluate atom stability (the percentage of atoms with the correct valency) and molecule stability (the percentage 
-of generated molecules where all atoms are stable) of the generated molecules.
+of generated molecules where all atoms are stable) of the generated molecules. For a full list of hyperparameters, please consult the README in our repository. 
 
 ### Consistency Models EDM Results
 
