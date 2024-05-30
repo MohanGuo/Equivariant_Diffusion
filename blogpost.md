@@ -747,15 +747,15 @@ In conclusion, we successfully reimplemented the original paper. We attempted to
 
 ## Author's Contributions
 
-Patrik: Jax implementation 
+Patrik: Worked with the Jax implementation and also helped with writing the blogpost.
 
-Luke: Jax implementation
+Luke: Worked with the Jax implementation and also helped with writing the blogpost.
 
-Mohan: Jax implementation
+Mohan: Worked with the Jax implementation and also helped with writing the blogpost.
 
-Martin: Consistency models
+Martin: Worked with consistency models implementation and also helped with writing the blogpost.
 
-Anthonis: Consistency models
+Anthonis: Worked with consistency models implementation and also helped with writing the blogpost.
 
 ## Bibliography
 
