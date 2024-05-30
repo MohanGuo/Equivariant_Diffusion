@@ -396,8 +396,7 @@ Since coordinates and categorical features are on different scales, the EDM auth
 ### Consistency Models
 
 
-Although diffusion Models have significantly advanced the fields of image, audio, and video generation, but they depend on an
-iterative de-noising process to generate samples, which can be very slow [5]. To generate good samples, a lot of steps are often required (sometimes in the 1000s). This issue is exacerbated when dealing with high dimensional data where all operations are even more computationally expensive. As hinted in the introduction, we look at Consistency models in our work to bypass this bottleneck.
+Although diffusion Models have significantly advanced the fields of image, audio, and video generation, but they depend on an iterative de-noising process to generate samples, which can be very slow [5]. To generate good samples, a lot of steps are often required (sometimes in the 1000s). This issue is exacerbated when dealing with high dimensional data where all operations are even more computationally expensive. As hinted in the introduction, we look at Consistency models in our work to bypass this bottleneck.
 
 This is where Consistency Models really shine. This new family of models reduces the number of steps during de-noising up to just a single step generation, significantly speeding up this process, while allowing for a controlled trade-off between speed and sample quality.
 
@@ -475,7 +474,9 @@ In practice, the following formula is most often used to determine these boundar
 
 $$t_i = \left(\epsilon^{1/\rho} + \frac{i - 1}{N - 1}(T^{1/\rho} - \epsilon^{1/\rho})\right)^\rho \qquad \text{(24)}$$
 
-Given any of-the-shelf ODE solver (e.g. Euler) and a trained score model $s_\phi(\mathbf{x}, t)$, we can solve this PF ODE.
+, where $\rho = 7$.
+
+ Given any of-the-shelf ODE solver (e.g. Euler) and a trained score model $s_\phi(\mathbf{x}, t)$, we can solve this PF ODE.
 
 As shown before, the score model is needed to predict the change in signal over time $\frac{dx_t}{dt}$, i.e. a
 generalization of what we referred to as "predicting noise to next time step" earlier.
