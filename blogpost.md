@@ -622,9 +622,9 @@ Diffusion seems like an ideal use case for Jax, since diffusion requires certain
 
 Jax functions must be pure, meaning the function will always have the same result given the same input. Thus, we had to restructure functions so that they did not rely on global variables. This also means JAX cannot use stateful randomness like Pytorch. Instead, randomness is controlled by explicit random keys. We maintain a primary random key ("root key") and generate new subkeys from it as needed. This approach ensures consistent randomization while also allowing for reproducibility of results. Additionally, pure functions cannot have side effects. Thus, we had to remove certain statements, like assert and print statements.
 
-### Preventing recompilation:
+### Enabling Jit:
 
-Jitted functions recompile when the shape or data type of the input changes. In the pytorch, certain inputs changed size. For example, h (the node features) had a shape of [size_batch, size_largest_molecule_in_batch]. Depedending on the batch, the number of columns in h ranged from 26 to 29. Thus, we needed to apply padding to all inputs to standardize the input size.
+In the pytorch implementations, the size of many inputs would vary based upon the batch. For example, h (the node features) had a shape of [size_batch, size_largest_molecule_in_batch]. Depedending on the batch, the number of columns in h ranged from 26 to 29. This would cause massive performance problems for a jitted function, because JAX must create a new computation graph to accomodate the newly sized inputs. To prevent this, we needed to apply padding to all inputs to standardize the input size.
 
 Jit also adds some complexity and constraints to using control flow. Jit must understand the path the control flow will take, which may be tough given the potentially abstract inputs. We had to change certain conditionals to work with jax.
 
