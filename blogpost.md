@@ -659,8 +659,8 @@ of generated molecules where all atoms are stable) of the generated molecules. F
 
 ### EDM Consistency Model Results
 
-We were able to successfully train EDM as a consistency model in isolation. We achieved a nearly identical training
-loss curves, both in magnitude and convergence rate: 
+We were able to successfully train EDM as a consistency model in isolation. We achieved nearly identical training
+loss curves, both in magnitude of the NLL and convergence rate: 
 
 <p align="center">
   <img src="readme_material/results_edm_orig_train_loss.png" alt="Diffusion in nature" width="250" />
@@ -670,9 +670,10 @@ loss curves, both in magnitude and convergence rate:
 Figure nTBA: Training loss curves for original EDM (left), and consistency model EDM (right)
 </p>
 
-For validation and testing, we compared samples from an EMA model against the corresponding ground truth,
-since consistency models are trained to produce samples on the data distribution. We achieved similar convergence
-rates for both val and test losses but with a different magnitude:
+For validation and testing, we compared samples from an EMA model against the corresponding ground truth sample,
+since consistency models are trained to produce samples directly on the data distribution. 
+We achieved similar convergence rates for both val and test losses but with a different magnitude due to the 
+changed objective:
 
 <p align="center">
   <img src="readme_material/results_edm_orig_val_loss.png" alt="Diffusion in nature" width="250" />
@@ -687,8 +688,14 @@ rates for both val and test losses but with a different magnitude:
 Figure nTBA: Val (top) and Test (bottom) loss curves for original EDM (left), and consistency model EDM (right)
 </p>
 
-Using single-step sampling with consistency models, we were only able to reliably achieve around 15% atom stability,
-and we were not successful in generating any stable molecules using this approach.
+These results were obtained using the same EGNN back-bone, batch-size, 
+learning rate, and other relevant hyperparameters, only differing in the number of epochs completed.
+However, given the displayed loss curves, we have little reason to believe that training the consistency model
+for longer would be beneficial.
+
+Using single-step sampling with consistency models, we were only able to reliably achieve around 15% atom stability in
+the best case scenario with a large batch size. We were not successful in generating any stable molecules using
+the consistency model.
 
 <p align="center">
   <img src="readme_material/results_consistency_atom_stability.png" alt="Diffusion in nature" width="250" />
@@ -697,11 +704,6 @@ and we were not successful in generating any stable molecules using this approac
 Figure nTBA: Best results for atom stability metric using single-step sampling with consistency models trained on
 batch_size = 1024 for improved stability.
 </p>
-
-These results for the Consistency Model and default EDM were obtained using the same EGNN back-bone, batch-size, 
-learning rate, and other relevant hyperparameters, only differing in the number of epochs completed.
-However, given the displayed loss curves, we have little reason to belive that training the consistency model
-for longer would be beneficial.
 
 The controlled trade-off between speed and sample quality should be possible with multi-step sampling,
 however, all attempts to make multi-step sampling work resulted in decreased atom stability. We firther 
