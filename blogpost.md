@@ -560,7 +560,7 @@ important applications in zero-shot data editing [5], but in the case of molecul
 <img src="readme_material//consistency_on_molecules.png" alt="Consistency Graph 1" width="600"/>
 </p>
 <p align="center">
-Figure 8: Visualization of PF ODE trajectories for molecule generation in 3D. [9]
+Figure 8: Visualization of PF ODE trajectories for molecule generation in 3D. [6]
 </p>
 
 ### Training Consistency Models
