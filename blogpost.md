@@ -2,7 +2,7 @@
 
 ### P. Bartak, L. Cadigan, M. Guo, M. Sedlacek, A. Vozikis
 
-In this blog post, we present and discuss the seminal paper ["Equivariant Diffusion for Molecule Generation in 3D"](https://arxiv.org/abs/2203.17003) [1], which presented an Equivariant Diffusion Model (EDM). Diffusion models are trained to remove noise from data. After training, the model can take in a sample of random noise and sequentially denoise the sample until it generates new data (in this case, it generates a molecule). Hoogeboom et al (2022) trained a diffusion model with an Equivariant Graph Neural Network (EGNN) backbone for molecule generation in 3D, a novel approach at the time. EDM inspired many subsequent works in the field [22, 23, 24, 25] and showed strong improvement over other generative methods at the time. EDM has a downside: the sequential denoising during generation can take a large amount of time, creating a large computational burden [5].
+In this blog post, we present and discuss the seminal paper ["Equivariant Diffusion for Molecule Generation in 3D"](https://arxiv.org/abs/2203.17003) [1], which presented an Equivariant Diffusion Model (EDM). Diffusion models are trained to remove noise from data. After training, the model can take in a sample of random noise and sequentially denoise the sample until it generates new data (in this case, it generates a molecule). Hoogeboom et al (2022) trained a diffusion model with an Equivariant Graph Neural Network (EGNN) backbone to generate 3D molecules, a novel approach at the time. EDM inspired many subsequent works in the field [22, 23, 24, 25] and showed strong improvement over other generative methods at the time. However, this method has a major downside: the sequential denoising during generation can take a large amount of time, creating a large computational burden [5].
 
 <!---
 We hope to give the reader an easy-to-understand overview of the underlying theory and core ideas of the EDM paper, leading
@@ -14,8 +14,7 @@ We present two extensions, aimed to increase the speed of the EDM and uncap its 
 1. Training EDM as a Consistency Model [5]
 2. Faster implementation of the EDM with JAX [17]
 
-Consistency models enable the model to generate samples in a single step. This can be much faster than the
-sequential sampling of diffusion models. In conjunction with this, we can make the model even faster by implementing JAX. JAX has been shown to improve the speed of certain diffusion models by large amounts, with one study finding a 5x speed improvement in a comparable diffusion model [28]. JAX tends to improve the performance of models that require regular, repetitive computations, making a diffusion models a good candidate for Jax reimplementation.
+Consistency models enable the model to generate samples in a single step, which can be much faster than the sequential sampling of diffusion models. In conjunction with this, we can make the model even faster by implementing the model using the JAX framework. JAX has been shown to improve the speed of certain diffusion models by large amounts, with one study finding a 5x speed improvement in a comparable diffusion model [28]. JAX tends to improve the performance of models that require regular, repetitive computations such as diffusion models. 
 
 <!---
 Many previous works across various domains have shown that scaling model architectures to more parameter can significantly
@@ -35,8 +34,7 @@ We hope that, by improving the speed of our models, we can enable the use of lar
 more expensive compute. Even without compute constraints, increasing speed hastens development and decreases
 the carbon footprint overall.
 
-We also note that these performance improvements are, in theory at least, not exclusive to EDM or GNNs. Many other ML models might be improved
-through a JAX reimplementation and most diffusion models can be trained as a consistency model.
+We also note that these performance improvements are, in theory at least, not exclusive to EDM or GNNs. Many other ML models might be improved through a JAX reimplementation and most diffusion models can be trained as a consistency model.
 
 ## E(n) Equivariant Graph Neural Networks (EGNNs)
 
