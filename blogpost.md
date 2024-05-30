@@ -4,7 +4,7 @@
 
 In this blog post, we present and discuss the seminal paper ["Equivariant Diffusion for Molecule Generation in 3D"](https://arxiv.org/abs/2203.17003) [1], 
 which presented an Equivariant Diffusion Model (EDM). The authors trained a diffusion model with an 
-Equivariant Graph Neural Network (EGNN) backbone to generate 3D molecules, a novel approach, which  
+Equivariant Graph Neural Network (EGNN) backbone to generate 3D molecules, a novel approach, which 
 demonstrated strong improvement over other (non-diffusion based) generative methods at the time.
 This inspired many subsequent works in the field [22, 23, 24, 25]. However, this method has a major 
 downside: the sequential denoising process of diffusion models can take a large amount of time and compute, 
