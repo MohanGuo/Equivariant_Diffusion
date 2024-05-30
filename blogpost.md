@@ -661,8 +661,9 @@ Before commencing the training process, the model is first initialized with the 
 
 To accelerate the training process, the training steps per epoch are compiled using JAX's jit compiler, which optimizes execution speed by compiling Python functions into machine code. The original PyTorch implementation already paralleled batch processing inside the model, so we preserved this feature in the JAX implementation instead of using JAX’s vmap for vectorizing operations across batches.
 
-### Experiments
+## Experiments
 
+### Dataset & Metrics
 
 The QM9 dataset[29, 30] (Quantum Machine 9) is a commonly used dataset containing the molecular properties and atomic 
 coordinates for 133,885 small molecules, along with computed geometric, energetic, electronic, and thermodynamic 
@@ -670,19 +671,62 @@ properties. Each molecule contains up to 9 heavy atoms (with up to 29 atoms in t
 experiment, we train the EDM model to generate molecules with 3D coordinates and atom types (H, C, N, O, F). Other, 
 related datasets include QM7, QM7b, QM8, ZINC, ChEMBL, MOSES, and Tox21.
 
-Replicating the original paper, we use the train/validation/test splits, which divide the data into 100,000 training 
+Replicating the original EDM paper, we use the train/validation/test splits, which divide the data into 100,000 training 
 samples, 18,000 validation samples, and 13,000 test samples. To evaluate the quality of our molecule generation, we 
 evaluate atom stability (the percentage of atoms with the correct valency) and molecule stability (the percentage 
 of generated molecules where all atoms are stable) of the generated molecules. For a full list of hyperparameters, please consult the README in our repository. 
 
-### Consistency Models EDM Results
+### EDM Consistency Model Results
 
-Although consistency model worked for EGNN and the training loss and negative log likelihood was going down we could
-not reach atom stability higher than 13%. Further research is needed in order to get better performance, but for the
-scope of the course and the timeframe of the experiment we showed that indeed EGNN can be modified to work with
-consistency models in the spot of Diffusion models.
+We were able to successfully train EDM as a consistency model in isolation. We achieved a nearly identical training
+loss curves, both in magnitude and convergence rate: 
 
-### Results
+<p align="center">
+  <img src="readme_material/results_edm_orig_train_loss.png" alt="Diffusion in nature" width="250" />
+  <img src="readme_material/results_consistency_train_loss.png" alt="Diffusion in model" width="250" />
+</p>
+<p align="center">
+Figure nTBA: Training loss curves for original EDM (left), and consistency model EDM (right)
+</p>
+
+For validation and testing, we compared samples from an EMA model against the corresponding ground truth,
+since consistency models are trained to produce samples on the data distribution. We achieved similar convergence
+rates for both val and test losses but with a different magnitude:
+
+<p align="center">
+  <img src="readme_material/results_edm_orig_val_loss.png" alt="Diffusion in nature" width="250" />
+  <img src="readme_material/results_consistency_val_loss.png" alt="Diffusion in model" width="250" />
+</p>
+
+<p align="center">
+  <img src="readme_material/results_edm_orig_test_loss.png" alt="Diffusion in nature" width="250" />
+  <img src="readme_material/results_consistency_test_loss.png" alt="Diffusion in model" width="250" />
+</p>
+<p align="center">
+Figure nTBA: Val (top) and Test (bottom) loss curves for original EDM (left), and consistency model EDM (right)
+</p>
+
+Using single-step sampling with consistency models, we were only able to reliably achieve around 15% atom stability,
+and we were not successful in generating any stable molecules using this approach.
+
+<p align="center">
+  <img src="readme_material/results_consistency_atom_stability.png" alt="Diffusion in nature" width="250" />
+</p>
+<p align="center">
+Figure nTBA: Best results for atom stability metric using single-step sampling with consistency models trained on
+batch_size = 1024 for improved stability.
+</p>
+
+These results for the Consistency Model and default EDM were obtained using the same EGNN back-bone, batch-size, 
+learning rate, and other relevant hyperparameters, only differing in the number of epochs completed.
+However, given the displayed loss curves, we have little reason to belive that training the consistency model
+for longer would be beneficial.
+
+The controlled trade-off between speed and sample quality should be possible with multi-step sampling,
+however, all attempts to make multi-step sampling work resulted in decreased atom stability. We firther 
+discuss the set-up and hypothesise why this did not work in the next section (TBA). 
+
+### EDM in JAX Results
 
 Due to time constraints, we were unable to tune either of our models to the level of the previous pytorch implementation. After training, the consistency model achieved an atom stability of 15% while the Jax model achieved an atom stability of 16%. Neither of these are competitive with the 99% atom stability reported in the original paper. 
 
