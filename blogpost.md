@@ -113,8 +113,7 @@ information, which remain unchanged under the group action of translation. -->
 Diffusion models [18], are deeply rooted within the principles of physics, where the  process describes particles moving 
 from an area of higher concentration to an area of lower concentration - a process governed by random, stochastic 
 interactions. In the physical world, this spreading can largely be traced back to the original configuration, which 
-inspired scientists to create models of this behaviour. When applied to generative modelling, we usually aim to reconstructed data from some observed or sampled noise, which 
-is an approach adopted by many powerful diffusion models. 
+inspired scientists to create models of this behaviour. When applied to generative modelling, we usually aim to reconstructed data from some observed or sampled noise, which is an approach adopted by many powerful diffusion models. 
 
 <p align="center">
   <img src="readme_material/Diffusion_microscopic.gif" alt="Diffusion in nature" width="181" />
@@ -686,9 +685,11 @@ consistency models in the spot of Diffusion models.
 
 ### Results
 
-Due to time constraints, we were unable to tune either of our models to the level of the previous pytorch implementation. After training, the consistency model achieved an atom stability of ___ while the Jax model achieved an atom stability of ____. Neither of these are competitive with the reported value in the paper, _____. We strongly suspect that the inferior performance of the Jax model results from a bug in our code, which we are still attempting to identify. 
+Due to time constraints, we were unable to tune either of our models to the level of the previous pytorch implementation. After training, the consistency model achieved an atom stability of 15% while the Jax model achieved an atom stability of 16%. Neither of these are competitive with the 99% atom stability reported in the original paper. 
 
-We have, however, found that our Jax model took only 62% of the time that our pytorch model took for a training epoch with a small model (diffusion_steps=200). We view this number as a reasonable floor for the speed improvement that Jitting can have. For example, our code still spent a lot of time recompiling, as we found when we ran the code with debug flag JAX_LOG_COMPILES=1. We believe can reduce this recompilation. Moreover, we believe that we could parallelize our code better. Our code runs operations on batches of inputs (just as the original pytorch version did). We could change the code to run on single inputs, and then use jax.pmap to parallelize, which might result in better performance. There are also a number of smaller optimizations that we could make given time.
+We strongly suspect that the inferior performance of the Jax model results from a bug in our code, which we are still attempting to identify. The bug may be Jax specific: several different errors, such as improper handling of global values, can lead to unexpected behavior. Some typo in the reimplementation may also result in the inferior performance. Differences in optimization and initiliazitation may also cause worse performance, although they do not seem to account for a discrepancy of this magnitude. 
+
+We found that our Jax model took only 62% of the time that our pytorch model took for a training epoch with a small model (diffusion_steps=200). We view this number as a reasonable floor for the speed improvement that Jitting can have. For example, our code still spent a lot of time recompiling, as we found when we ran the code with debug flag JAX_LOG_COMPILES=1. We believe can reduce this recompilation. Moreover, we believe that we could parallelize our code better. Our code runs operations on batches of inputs (just as the original pytorch version did). We could change the code to run on single inputs, and then use jax.pmap to parallelize, which might result in better performance. There are also a number of smaller optimizations that we could make given time.
 
 ## Conclusion
 
