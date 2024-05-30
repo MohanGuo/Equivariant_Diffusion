@@ -204,21 +204,19 @@ $$
 L = -\log(p_{\theta}(x_{0})) \qquad \text{(11)}
 $$
 
-However, this is intractable because we need to integrate over a very high dimensional (pixel) space for continuous values over T timesteps. 
-
-By taking inspiration from VAEs and reformulating the training objective using a variational lower bound (VLB), also known as _Evidence lower bound_ (ELBO) we have :
+However, this is intractable because we need to integrate over a very high dimensional (pixel) space for continuous values over T timesteps. Instead, take inspiration from VAEs and find a new, tractable training objective using a variational lower bound (VLB), also known as _Evidence lower bound_ (ELBO). We have :
 
 $`
 \mathbb{E}[-\log p_{\theta}(x_{0})] \leq \mathbb{E}_{q} \left[ -\log \frac{p_{\theta}(x_{0:T})}{q(x_{1:T} | x_{0})} \right] = \mathbb{E}_{q} \left[ -\log p(X_{T}) - \sum_{t \geq 1} \log \frac{p_{\theta}(x_{t-1} | x_{t})}{q(x_{t} | x_{t-1})} \right] =: L \qquad \text{(12)}
 `$
 
-After some simplification, we arrive at this final L_vlb - Variational Lower Bound loss term:
+After some simplification, we arrive at this final $`L_{vlb}`$ - Variational Lower Bound loss term:
 
 $`
 \mathbb{E}_{q} \left[ D_{KL}(q(x_{T}|x_{0}) \parallel p(x_{T})) \bigg\rvert_{L_{T}} + \sum_{t > 1} D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \bigg\rvert_{L_{t-1}} - \log p_{\theta}(x_{0}|x_{1}) \bigg\rvert_{L_{0}} \right] \qquad \text{(13)}
 `$
 
-We can break the above L_vlb loss term into individual timesteps as follows:
+We can break the above $`L_{vlb}`$ loss term into individual timesteps as follows:
 
 $$
 L_{vlb} := L_{0} + L_{1} + \cdots + L_{T-1} + L_{T} \qquad \text{(14)}
@@ -239,7 +237,7 @@ $$
 The terms ignored are:
 
 1. **L₀** – Because the original authors got better results without this.
-2. **Lₜ** – This is the _"KL divergence"_ between the distribution of the final latent in the forward process and the first latent in the reverse process. Because there are no neural network parameters we can't do anything with it so we just ingore/
+2. **Lₜ** – This is the _"KL divergence"_ between the distribution of the final latent in the forward process and the first latent in the reverse process. Because there are no neural network parameters we can't do anything with it so we just ignore from optimization.
 
 So **Lₜ₋₁** is the only loss term left which is a KL divergence between the _“posterior”_ of the forward process, and the parameterized reverse diffusion process. Both terms are gaussian distributions as well.
 
@@ -249,7 +247,7 @@ $$
 
 The term q(xₜ₋₁|xₜ, x₀) is referred to as _“forward process posterior distribution.”_
 
-The job of our DL model during training is to approximate the parameters of this posterior such that the KL divergence is as minimal as possible.
+During training, our DL model learns to approximate the parameters of this posterior in order to minimize the KL divergence.
 
 <p align="center">
 <img src="readme_material//diffusion_training.gif" width=700>
@@ -363,30 +361,24 @@ and $`\epsilon_t \sim \mathcal{N}_{xh}(0, \mathbb{I})`$. -->
 
 where $\( w(t) = \left(1 - \frac{\text{SNR}(t-1)}{\text{SNR}(t)}\right) \)$ and $\( \hat{\epsilon}_t = \phi(z_t, t) \)$.
 
-Furthermore, the EDM authors found that empirically, the model performs best with a constant $w(t) = 1$, disregarding the
-signal-to-noise ration (SNR), effectively simplifying the loss term further to just an MSE.
+However, the EDM authors found that the model had better empirical performance with a constant $w(t) = 1$, disregarding the
+signal-to-noise ration (SNR). Thus, the loss term effectively simplifies to a MSE.
 
-Since coordinates and categorical features are on different scales, the EDM authors also found that scaling the inputs
-before prediction, then rescaling them back later, significantly improved overall performance.
+Since coordinates and categorical features are on different scales, the EDM authors also found they achieved better performance when scaling the inputs before prediction and then rescaling them back after.
 
-### Drawbacks
 
-To generate good samples, a lot of steps are often required (sometimes in the 1000s). This process is costly and
-constitutes one of the main bottlenecks of diffusion models [5]. This issue is exacerbated when dealing with high
-dimensional data where all operations are even more computationally expensive. As hinted in the introduction, we
-look at Consistency models in our work to bypass this bottleneck.
+### Consistency Models
 
-## Consistency Models
 
-Diffusion Models have significantly advanced the fields of image, audio, and video generation, but they depend on an
-iterative de-noising process to generate samples, which can be slow [5]. This is where Consistency Models really shine.
-This new family of models reduces the number of steps during de-noising up to just a single step generation, significantly
-speeding up this process, while allowing for a controlled trade-off between speed and sample quality.
+Although diffusion Models have significantly advanced the fields of image, audio, and video generation, but they depend on an
+iterative de-noising process to generate samples, which can be very slow [5]. To generate good samples, a lot of steps are often required (sometimes in the 1000s). This issue is exacerbated when dealing with high dimensional data where all operations are even more computationally expensive. As hinted in the introduction, we look at Consistency models in our work to bypass this bottleneck.
+
+This is where Consistency Models really shine. This new family of models reduces the number of steps during de-noising up to just a single step generation, significantly speeding up this process, while allowing for a controlled trade-off between speed and sample quality.
 
 ### How does it work?
 
 To understand consistency models, one must look at diffusion from a slightly different perspective than it's usually presented.
-Specifically, as the transfer of mass under the data probability distribution in time.
+Consider the transfer of mass under the data probability distribution in time.
 
 <p align="center">
 <img src="readme_material//bimodal_to_gaussian_plot.png" alt="Bimodal_to_Gaussian" width="300" />
@@ -395,9 +387,7 @@ Specifically, as the transfer of mass under the data probability distribution in
 Figure 6: Illustration of a bimodal distribution evolving to a Gaussian over time
 </p>
 
-As one might be familiar with from other disciplines, such process often hints itself to be well described
-with a differential equation. In the next sections we look closely at the work of Yang Song [5,6] and others
-to examine how they leverage the existence of such an Ordinary Differential Equation (ODE) to generate strong
+Such process are often well described with a differential equation. In the next sections we look closely at the work of Yang Song [5,6] and others to examine how they leverage the existence of such an Ordinary Differential Equation (ODE) to generate strong
 samples much faster.
 
 <br>
@@ -414,8 +404,7 @@ and $\mathbf{w}_t$ is the stochastic component denoting standard Brownian motion
 represents the iterative adding of noise to the data in the forward diffusion process and dictates the shape of the final
 distribution at time $T$.
 
-Typically, as one might be familiar with from diffusion literature, this SDE is designed such that $p_T(\mathbf{x})$ at
-the final time-step $T$ is close to a tractable Gaussian.
+Typically, this SDE is designed such that $p_T(\mathbf{x})$ at the final time-step $T$ is close to a tractable Gaussian.
 
 <br>
 
@@ -430,10 +419,8 @@ This ODE is dubbed the Probability Flow (PF) ODE by Song et al. [5] and correspo
 manipulating probability mass over time we hinted at in the beginning of the section.
 
 A score model $s_\phi(\mathbf{x}, t)$ can be trained to approximate $\nabla log p_t(\mathbf{x})$ via score matching [5].
-
-Since we know the parametrization of the final distribution $p_T(\mathbf{x})$ to be a standard Gaussian and following
-Karras et al. [7] it is parametrized with $\mathbf{\mu}=0$ and $\sigma(t) = \sqrt{2t}$, this score model can be plugged
-into the equation (22) and the expression reduces itself to an empirical estimate of the PF ODE:
+ <!-- and following Karras et al. [7] it is -->
+Since we know the parametrization of the final distribution $p_T(\mathbf{x})$ to be a standard Gaussian parametrized with $\mathbf{\mu}=0$ and $\sigma(t) = \sqrt{2t}$, this score model can be plugged into the equation (22) and the expression reduces itself to an empirical estimate of the PF ODE:
 
 $$\frac{dx_t}{dt} = -ts\phi(\mathbf{x}_t, t) \qquad \text{(23)}$$
 
@@ -533,13 +520,13 @@ In our work, we utilize the latter methodology in order to satisfy the boundary 
 
 **Sampling**
 
-With a fully trained consistency model $f_\theta(\cdot, \cdot)$, we can generate by simply sampling from the initial
+With a fully trained consistency model $f_\theta(\cdot, \cdot)$, we can generate new samples by simply sampling from the initial
 Gaussian $\hat{x_T}$ $\sim \mathcal{N}(0, T^2I)$ and propagating this through the consistency model to obtain
 samples on the data distribution $\hat{x_{\epsilon}}$ $= f_\theta(\hat{x_T}, T)$ with as little as one diffusion step.
 
-Importantly, one can also use the consistency model to generate samples using multiple time steps by alternating denoising
+<!-- Importantly, one can also use the consistency model to generate samples using multiple time steps by alternating denoising
 and noise injection steps for improved sample quality at the cost of speed. It should also be noted that this has
-important applications in zero-shot data editing [5], but in the case of molecules we did not use this property.
+important applications in zero-shot data editing [5], but in the case of molecules we did not use this property. -->
 
 <p align="center">
 <img src="readme_material//consistency_on_molecules.png" alt="Consistency Graph 1" width="600"/>
@@ -627,11 +614,9 @@ during sampling.
 
 <!-- One paper found reimplementing Diffusion-QL (a diffusion-based offline RL algorithm) lead to a 5x speed increase (https://proceedings.neurips.cc/paper_files/paper/2023/file/d45e0bfb5a39477d56b55c0824200008-Paper-Conference.pdf).  -->
 
-Jax is a machine learning framework that can result in significantly faster code. A reimplementation of another diffusion-based model lead to a 5x increase in speed [28]. The increase in speed is very task specific, however.
+Jax is a machine learning framework that can result in significantly faster code depending on the task. During compilation, Jax transforms are turned into computation graphs. XLA turns these computation graphs into efficient, GPU-ready machine code. This process becomes even quicker when we use JIT (Just in Time) compilation. With Jit compilation, arrays are replaced with abstract tracers, which encode the shape and datatype (but not values) of the arrays. Using these tracers, jax.jit extracts the sequence of operations required by the function. This sequence can then be cached and reapplied within XLA on new inputs of the same shape and data type, saving computation.
 
-During compilation, Jax transforms are turned into computation graphs. XLA turns these computation graphs into efficient, GPU-ready machine code. This process becomes even quicker when we use JIT (Just in Time) compilation. With Jit compilation, arrays are replaced with abstract tracers, which encode the shape and datatype (but not values) of the arrays. Using these tracers, jax.jit extracts the sequence of operations required by the function. This sequence can then be cached and reapplied within XLA on new inputs of the same shape and data type, saving computation.
-
-Diffusion seems like an ideal use case for Jax, since diffusion requires certain functions to run repeatedly. Thus, we can optimize the function once and gain speed everytime we reuse the function. However, in order to run Jax with jit, we had to overcome several changes:
+Diffusion seems like an ideal use case for Jax, since diffusion requires certain functions to be run repeatedly. Thus, we can optimize the function once and gain speed everytime we reuse the function. However, in order to run Jax with jit, we had to overcome several changes:
 
 ### Using pure functions:
 
