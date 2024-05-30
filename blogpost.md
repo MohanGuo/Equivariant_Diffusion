@@ -58,11 +58,11 @@ Equivariance is a property of certain functions, which ensures that the function
 
 Formally, function $f$ is said to be equivariant to the action of a group $G$ if: 
 
-$$T_g(f(x)) = f(S_g(x))$$ 
+$$T_g(f(x)) = f(S_g(x)) \qquad \text{(1)}$$ 
 
 for all $g ∈ G$, where $S_g,T_g$ are linear representations related to the group element $g$ [32]. The three transformations we are interested in form the Euclidean group $E(3)$, for which $S_g$ and $T_g$ can be represented by a translation $t$ and an orthogonal matrix $R$ that rotates or reflects coordinates. $f$ is then equivariant to a rotation or reflection $R$ if: 
 
-$$Rf(x) = f(Rx)$$
+$$Rf(x) = f(Rx) \qquad \text{(2)}$$
 
 meaning transforming its input results in an equivalent transformation of its output. [1]
 
@@ -78,8 +78,8 @@ An EGNN takes in a graph where some noise has been added and attempts to remove 
 --->
 
 Generating molecules naturally leans itself into graph representation, with the nodes representing atoms within the
-molecules, and edges representing their bonds. The features $\mathbf{h}_i \in \mathcal{R}^d$ of each atom, such as
-element type, can then be encoded into the embedding of a node alongside it's position $\mathbf{x}_i \in \mathcal{R}^3$. The previously explained E(3) equivariance property can be used as an inductive prior that improves generalization, and EGNNs are a powerful tool which injects these priors about molecules into the model architecture itself, as the EDM paper had demonstrated [1]. Their usefulness is further supported
+molecules, and edges representing their bonds. The features $\mathbf{h}_i \in \mathbb{R}^d$ of each atom, such as
+element type, can then be encoded into the embedding of a node alongside it's position $\mathbf{x}_i \in \mathbb{R}^3$. The previously explained E(3) equivariance property can be used as an inductive prior that improves generalization, and EGNNs are a powerful tool which injects these priors about molecules into the model architecture itself, as the EDM paper had demonstrated [1]. Their usefulness is further supported
 by EGNNs beating similar non-equivariant Graph Convolution Networks on molecular generation tasks [27].
 
 The E(n) EGNN is a special type of message-passing Graph Neural Network (GNN) [31] with explicit rotation and translation equivariance baked in. A traditional message-passing GNN consists of several layers, each of which
@@ -95,7 +95,7 @@ Figure 1: Visualization of a message passing network (Credit: Yuki Asano)
 
 The EGNN specifically contains _equivariant_ convolution layers:
 
-$$\mathbf{x}^{l+1},\mathbf{h}^{l+1}=EGCL\[ \mathbf{x}^l, \mathbf{h}^l \] \qquad \text{(1)}$$
+$$\mathbf{x}^{l+1},\mathbf{h}^{l+1}=EGCL\[ \mathbf{x}^l, \mathbf{h}^l \] \qquad \text{(3)}$$
 
 The EGCL layer is defined through the formulas:
 
@@ -107,11 +107,11 @@ $`\mathbf{x}_i^{l+1} = \mathbf{x}_i^l + \sum_{j \neq i} \frac{\mathbf{x}_i^l \ma
 
 <div align="center">
 
-$`\mathbf{m}_{ij} = \phi_e(\mathbf{h}_i^l, \mathbf{h}_j^l, d^2_{ij})`$ $\qquad \text{(2)}$
+$`\mathbf{m}_{ij} = \phi_e(\mathbf{h}_i^l, \mathbf{h}_j^l, d^2_{ij})`$ $\qquad \text{(4)}$
 
-$` \mathbf{h}_i^{l+1} = \phi_h\left(\mathbf{h}_i^l, \sum_{j \neq i} \tilde{e}_{ij} \mathbf{m}_{ij}\right) `$ $\qquad \text{(3)}$
+$` \mathbf{h}_i^{l+1} = \phi_h\left(\mathbf{h}_i^l, \sum_{j \neq i} \tilde{e}_{ij} \mathbf{m}_{ij}\right) `$ $\qquad \text{(5)}$
 
-$`\mathbf{x}_i^{l+1} = \mathbf{x}_i^l + \sum_{j \neq i} \frac{\mathbf{x}_i^l \mathbf{x}_j^l}{d_{ij} + 1} \phi_x(\mathbf{h}_i^l, \mathbf{h}_j^l, d^2_{ij})`$ $\qquad \text{(4)}$
+$`\mathbf{x}_i^{l+1} = \mathbf{x}_i^l + \sum_{j \neq i} \frac{\mathbf{x}_i^l \mathbf{x}_j^l}{d_{ij} + 1} \phi_x(\mathbf{h}_i^l, \mathbf{h}_j^l, d^2_{ij})`$ $\qquad \text{(6)}$
 
 </div>
 
@@ -164,7 +164,7 @@ Gaussian noise with a variance of $\beta_t \in (0,1)$. We formally write this tr
 
 $$
 \begin{align}
-q\left( x_t \mid x_{t-1} \right) := \mathcal{N}\left( x_t ; \sqrt{1-\beta_t} x_{t-1}, \beta_t \mathbf{I} \right) & \qquad \text{(5)}
+q\left( x_t \mid x_{t-1} \right) := \mathcal{N}\left( x_t ; \sqrt{1-\beta_t} x_{t-1}, \beta_t \mathbf{I} \right) & \qquad \text{(7)}
 \end{align}
 $$
 
@@ -172,7 +172,7 @@ The whole Markov process leading to time step $T$ is given as a chain of these t
 
 $$
 \begin{align}
-q\left( x_1, \ldots, x_T \mid x_0 \right) := \prod_{t=1}^T q \left( x_t \mid x_{t-1} \right) & \qquad \text{(6)}
+q\left( x_1, \ldots, x_T \mid x_0 \right) := \prod_{t=1}^T q \left( x_t \mid x_{t-1} \right) & \qquad \text{(8)}
 \end{align}
 $$
 
@@ -194,13 +194,13 @@ original data to get the current timestep. By subtracting the noise, we get the 
 As Figure 3 shows, the reverse transitions are unknown, hence DDPM approximates them using a neural network 
 parametrized by $\theta$:
 
-$$p_\theta \left( x_{t-1} \mid x_t \right) := \mathcal{N} \left( x_{t-1} ; \mu_\theta \left( x_t, t \right), \Sigma_\theta \left( x_t, t \right) \right) \qquad \text{((7))}$$
+$$p_\theta \left( x_{t-1} \mid x_t \right) := \mathcal{N} \left( x_{t-1} ; \mu_\theta \left( x_t, t \right), \Sigma_\theta \left( x_t, t \right) \right) \qquad \text{((9))}$$
 
 Because we know the dynamics of the forward process, we know the variance at each $t$. Therefore, we can fix $\Sigma_\theta \left( x_t, t \right)$ to be $\beta_t \mathbf{I}$.
 
 The network prediction is then only needed to obtain $\mu_\theta \left( x_t, t \right)$, given by:
 
-$$\mu_\theta \left( x_t, t \right) = \frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta\_t}{\sqrt{1 - \bar{\alpha}\_t}} \epsilon\_\theta \left( x_t, t \right) \right) \qquad \text{(8)}$$
+$$\mu_\theta \left( x_t, t \right) = \frac{1}{\sqrt{\alpha_t}} \left( x_t - \frac{\beta\_t}{\sqrt{1 - \bar{\alpha}\_t}} \epsilon\_\theta \left( x_t, t \right) \right) \qquad \text{(10)}$$
 
 where $\alpha_t = \Pi_{s=1}^t \left( 1 - \beta_s \right)$.
 
@@ -208,7 +208,7 @@ Hence, we can directly predict $x_{t-1}$ from $x_{t}$ using the network $\theta$
 
 $$
 \begin{align}
-x_{t-1} = \frac{1}{\sqrt{1 - \beta_t}} \left( x_t - \frac{\beta_t}{\sqrt{1 - \alpha_t}} \epsilon_\theta \left( x_t, t \right) \right) + \sqrt{\beta_t} v_t & \qquad \text{((9))}
+x_{t-1} = \frac{1}{\sqrt{1 - \beta_t}} \left( x_t - \frac{\beta_t}{\sqrt{1 - \alpha_t}} \epsilon_\theta \left( x_t, t \right) \right) + \sqrt{\beta_t} v_t & \qquad \text{((11))}
 \end{align}
 $$
 
@@ -223,41 +223,41 @@ To maximize the log-likelihood of a gaussian distribution, we need to try and fi
 To train our neural network, we define the loss function (L) as the objective function’s negative. So a high value for p_θ(x₀), means low loss and vice versa.
 
 $$
-p_{\theta}(x_{0}) := \int p_{\theta}(x_{0:T})dx_{1:T} \qquad \text{(10)}
+p_{\theta}(x_{0}) := \int p_{\theta}(x_{0:T})dx_{1:T} \qquad \text{(12)}
 $$
 
 $$
-L = -\log(p_{\theta}(x_{0})) \qquad \text{(11)}
+L = -\log(p_{\theta}(x_{0})) \qquad \text{(13)}
 $$
 
 However, this is intractable because we need to integrate over a very high dimensional (pixel) space for continuous values over T timesteps. Instead, take inspiration from VAEs and find a new, tractable training objective using a variational lower bound (VLB), also known as _Evidence lower bound_ (ELBO). We have :
 
 $`
-\mathbb{E}[-\log p_{\theta}(x_{0})] \leq \mathbb{E}_{q} \left[ -\log \frac{p_{\theta}(x_{0:T})}{q(x_{1:T} | x_{0})} \right] = \mathbb{E}_{q} \left[ -\log p(X_{T}) - \sum_{t \geq 1} \log \frac{p_{\theta}(x_{t-1} | x_{t})}{q(x_{t} | x_{t-1})} \right] =: L \qquad \text{(12)}
+\mathbb{E}[-\log p_{\theta}(x_{0})] \leq \mathbb{E}_{q} \left[ -\log \frac{p_{\theta}(x_{0:T})}{q(x_{1:T} | x_{0})} \right] = \mathbb{E}_{q} \left[ -\log p(X_{T}) - \sum_{t \geq 1} \log \frac{p_{\theta}(x_{t-1} | x_{t})}{q(x_{t} | x_{t-1})} \right] =: L \qquad \text{(14)}
 `$
 
 After some simplification, we arrive at this final $`L_{vlb}`$ - Variational Lower Bound loss term:
 
 $`
-\mathbb{E}_{q} \left[ D_{KL}(q(x_{T}|x_{0}) \parallel p(x_{T})) \bigg\rvert_{L_{T}} + \sum_{t > 1} D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \bigg\rvert_{L_{t-1}} - \log p_{\theta}(x_{0}|x_{1}) \bigg\rvert_{L_{0}} \right] \qquad \text{(13)}
+\mathbb{E}_{q} \left[ D_{KL}(q(x_{T}|x_{0}) \parallel p(x_{T})) \bigg\rvert_{L_{T}} + \sum_{t > 1} D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \bigg\rvert_{L_{t-1}} - \log p_{\theta}(x_{0}|x_{1}) \bigg\rvert_{L_{0}} \right] \qquad \text{(15)}
 `$
 
 We can break the above $`L_{vlb}`$ loss term into individual timesteps as follows:
 
 $$
-L_{vlb} := L_{0} + L_{1} + \cdots + L_{T-1} + L_{T} \qquad \text{(14)}
+L_{vlb} := L_{0} + L_{1} + \cdots + L_{T-1} + L_{T} \qquad \text{(16)}
 $$
 
 $$
-L_{0} := - \log p_{\theta}(x_{0}|x_{1}) \qquad \text{(15)}
+L_{0} := - \log p_{\theta}(x_{0}|x_{1}) \qquad \text{(17)}
 $$
 
 $$
-L_{t-1} := D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \qquad \text{(16)}
+L_{t-1} := D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \qquad \text{(18)}
 $$
 
 $$
-L_{T} := D_{KL}(q(x_{T}|x_{0}) \parallel p(x_{T})) \qquad \text{(17)}
+L_{T} := D_{KL}(q(x_{T}|x_{0}) \parallel p(x_{T})) \qquad \text{(19)}
 $$
 
 The terms ignored are:
@@ -268,7 +268,7 @@ The terms ignored are:
 So **Lₜ₋₁** is the only loss term left which is a KL divergence between the _“posterior”_ of the forward process, and the parameterized reverse diffusion process. Both terms are gaussian distributions as well.
 
 $$
-L_{vlb} := L_{t-1} := D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \qquad \text{(18)}
+L_{vlb} := L_{t-1} := D_{KL}(q(x_{t-1}|x_{t}, x_{0}) \parallel p_{\theta}(x_{t-1}|x_{t})) \qquad \text{(20)}
 $$
 
 The term q(xₜ₋₁|xₜ, x₀) is referred to as _“forward process posterior distribution.”_
@@ -307,7 +307,7 @@ equivariantly rotated predictions $\mathbf{R}\mathbf{v}_i$ should still be the b
 
 Formally, we say that for any orthogonal rotation matrix $\mathbf{R}$ the following must hold:
 
-$$p(y|x) = p(\mathbf{R}y|\mathbf{R}x) \qquad \text{(19)}$$
+$$p(y|x) = p(\mathbf{R}y|\mathbf{R}x) \qquad \text{(21)}$$
 
 <!---
 (TBA - have a nice figure in my head to illustrate this with vectors if I can make it in time)
@@ -375,7 +375,7 @@ Using the KL divergence loss term introduced in DDPM with the EDM model parametr
 <img src="readme_material/EDM_eq17.png" alt="" width="300" />
 </p>
 <p align="center">
-$\qquad \text{(20)}$
+$\qquad \text{(22)}$
 </p>
 
 
@@ -423,7 +423,7 @@ samples much faster.
 Song et al. [6] have shown that the noising process in diffusion can be described with a Stochastic Differential Equation (SDE)
 transforming the data distribution $p_{\text{data}}(\mathbf{x})$:
 
-$$d\mathbf{x}_t = \mathbf{\mu}(\mathbf{x}_t, t) dt + \sigma(t) d\mathbf{w}_t \qquad \text{(21)}$$
+$$d\mathbf{x}_t = \mathbf{\mu}(\mathbf{x}_t, t) dt + \sigma(t) d\mathbf{w}_t \qquad \text{(23)}$$
 
 Where $t$ is the time-step, $\mathbf{\mu}$ is the drift coefficient, $\sigma$ is the diffusion coefficient,
 and $\mathbf{w}_t$ is the stochastic component denoting standard Brownian motion. This stochastic component effectively
@@ -439,16 +439,16 @@ Typically, this SDE is designed such that $p_T(\mathbf{x})$ at the final time-st
 This SDE has a remarkable property, that a special ODE exists, whose trajectories sampled at $t$ are distributed
 according to $p_t(\mathbf{x})$ [5]:
 
-$$d\mathbf{x}_t = \left[ \mathbf{\mu}(\mathbf{x}_t, t) - \frac{1}{2} \sigma(t)^2 \nabla \log p_t(\mathbf{x}_t) \right] dt \qquad \text{(22)}$$
+$$d\mathbf{x}_t = \left[ \mathbf{\mu}(\mathbf{x}_t, t) - \frac{1}{2} \sigma(t)^2 \nabla \log p_t(\mathbf{x}_t) \right] dt \qquad \text{(24)}$$
 
 This ODE is dubbed the Probability Flow (PF) ODE by Song et al. [5] and corresponds to the different view of diffusion
 manipulating probability mass over time we hinted at in the beginning of the section.
 
 A score model $s_\phi(\mathbf{x}, t)$ can be trained to approximate $\nabla log p_t(\mathbf{x})$ via score matching [5].
  <!-- and following Karras et al. [7] it is -->
-Since we know the parametrization of the final distribution $p_T(\mathbf{x})$ to be a standard Gaussian parametrized with $\mathbf{\mu}=0$ and $\sigma(t) = \sqrt{2t}$, this score model can be plugged into the equation (22) and the expression reduces itself to an empirical estimate of the PF ODE:
+Since we know the parametrization of the final distribution $p_T(\mathbf{x})$ to be a standard Gaussian parametrized with $\mathbf{\mu}=0$ and $\sigma(t) = \sqrt{2t}$, this score model can be plugged into the equation (24) and the expression reduces itself to an empirical estimate of the PF ODE:
 
-$$\frac{dx_t}{dt} = -ts\phi(\mathbf{x}_t, t) \qquad \text{(23)}$$
+$$\frac{dx_t}{dt} = -ts\phi(\mathbf{x}_t, t) \qquad \text{(25)}$$
 
 With $\mathbf{\hat{x}}_T$ sampled from the specified Gaussian at time $T$, the PF ODE can be solved backwards in time to obtain
 a solution trajectory mapping all points along the way to the initial data distribution at time $\epsilon$.
@@ -473,7 +473,7 @@ continuous variable.
 
 In practice, the following formula is most often used to determine these boundaries [7]:
 
-$$t_i = \left(\epsilon^{1/\rho} + \frac{i - 1}{N - 1}(T^{1/\rho} - \epsilon^{1/\rho})\right)^\rho \qquad \text{(24)}$$
+$$t_i = \left(\epsilon^{1/\rho} + \frac{i - 1}{N - 1}(T^{1/\rho} - \epsilon^{1/\rho})\right)^\rho \qquad \text{(26)}$$
 
 , where $\rho = 7$.
 
@@ -527,13 +527,13 @@ f_\theta (x, t) =
 x & t = \epsilon \\
 F_\theta (x, t) & t \in (\epsilon, T]
 \end{cases} \\
-\qquad \text{(25)}
+\qquad \text{(27)}
 $$
 
 2.) Another method is to parameterize the consistency model using skip connections, that is:
 
 $$
-f_\theta (x, t) = c_{\text{skip}} (t) x + c_{\text{out}} (t) F_\theta (x, t) \qquad \text{(26)}
+f_\theta (x, t) = c_{\text{skip}} (t) x + c_{\text{out}} (t) F_\theta (x, t) \qquad \text{(28)}
 $$
 
 where $c_{\text{skip}} (t)$ and $c_{\text{out}} (t)$ are differentiable functions such that $c_{\text{skip}} (\epsilon) = 1$,
@@ -569,7 +569,7 @@ Figure 8: Visualization of PF ODE trajectories for molecule generation in 3D. [9
 Consistency models can either be trained by "distillation" from a pre-trained diffusion model, or in "isolation" as a standalone generative model from scratch. In the context of our work, we focused only on the latter because the distillation approach has a hard requirement of using a pretrained score based diffusion. 
 In order to train in isolation we ned to leverage the following unbiased estimator:
 
-$$ \nabla \log p_t(x_t) = - \mathbb{E} \left[ \frac{x_t - x}{t^2} \middle| x_t \right] \qquad \text{(27)}$$
+$$ \nabla \log p_t(x_t) = - \mathbb{E} \left[ \frac{x_t - x}{t^2} \middle| x_t \right] \qquad \text{(29)}$$
 
 where $x \sim p_\text{data}$ and $x_t \sim \mathcal{N}(x; t^2 I)$.
 
@@ -593,7 +593,7 @@ Song et al. [5] justify this with a further theorem in their paper and show that
 can then be defined as:
 
 <p align="center">
-$\mathcal{L}_{CT}^N (\theta, \theta^-)$ = $\mathbb{E}[\lambda(t_n)d(f_\theta(x + t_{n+1} \mathbf{z}, t_{n+1}), f_{\theta^-}(x + t_n \mathbf{z}, t_n))]$ $\qquad \text{(28)}$
+$\mathcal{L}_{CT}^N (\theta, \theta^-)$ = $\mathbb{E}[\lambda(t_n)d(f_\theta(x + t_{n+1} \mathbf{z}, t_{n+1}), f_{\theta^-}(x + t_n \mathbf{z}, t_n))]$ $\qquad \text{(30)}$
 </p>
 
 where $\mathbf{z} \sim \mathcal{N}(0, I)$.
