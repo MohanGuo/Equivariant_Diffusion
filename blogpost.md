@@ -563,13 +563,11 @@ Figure 8: Visualization of PF ODE trajectories for molecule generation in 3D. [9
 
 ### Training Consistency Models
 
+
 Consistency models can either be trained by "distillation" from a pre-trained diffusion model, or in "isolation" as
 a standalone generative model from scratch. In the context of our work, we focus only on the latter and
-have no dependency on an already pre-trained model.
-
-Recall from the sections that, we relied on a existing pre-trained score model $s_\phi(x, t)$ to
-approximate the ground truth score function $\nabla \log p_t(x)$. However, it turns out that we can avoid this
-pre-trained score model altogether by leveraging the following unbiased estimator:
+have no dependency on an already pre-trained model. In our case scenario we decided to train in isolation, building a consistency model from scratch. We decided to follow this approach due to the lack of an already pre-trained score function diffusion model.
+In order to train in isolation we ned to leverage the following unbiased estimator:
 
 $$ \nabla \log p_t(x_t) = - \mathbb{E} \left[ \frac{x_t - x}{t^2} \middle| x_t \right] \qquad \text{(27)}$$
 
