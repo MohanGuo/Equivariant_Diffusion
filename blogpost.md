@@ -36,6 +36,14 @@ the carbon footprint overall.
 
 We also note that these performance improvements are, in theory at least, not exclusive to EDM or GNNs. Many other ML models might be improved through a JAX reimplementation and most diffusion models can be trained as a consistency model.
 
+## Groups and Equivariance for molecules
+
+Equivariance is a property of certain functions, which ensures that the function's output transforms in a predictable manner under collections of transformations. This property is valuable in molecular modeling, where it can be used to ensure that the properties of molecular structures are consistent with their symmetries in the real world. specifically, we are interested in ensuring that some structure is preserved in the representation of the molecule when three types of transformations are applied to it: translation, rotation, and reflection. 
+
+Formally, function $f$ is said to be equivariant to the action of a group $G$ if $T_g(f(x)) = f(S_g(x))$ for all $g ∈ G$, where $S_g,T_g$ are linear representations related to the group element $g$. [32]
+
+The three transformations we are interested in form the Euclidean group $E(3)$, for which $S_g$ and $T_g$ can be represented by a translation $t$ and an orthogonal matrix $R$ that rotates or reflects coordinates. $f$ is then equivariant to a rotation or reflection $R$ if transforming its input results in an equivalent transformation of its output, or $Rf(x) = f(Rx)$. [1]
+
 ## E(n) Equivariant Graph Neural Networks (EGNNs)
 
 <!---
@@ -49,14 +57,10 @@ An EGNN takes in a graph where some noise has been added and attempts to remove 
 
 Generating molecules naturally leans itself into graph representation, with the nodes representing atoms within the
 molecules, and edges representing their bonds. The features $\mathbf{h}_i \in \mathcal{R}^d$ of each atom, such as
-element type, can then be encoded into the embedding of a node alongside it's position $\mathbf{x}_i \in \mathcal{R}^3$.
-Moreover, molecules in the real world naturally have the property of E(3) equivariance, preserving their structure and
-features regardless of translations and rotations . Hence, EGNNs are a powerful tool which inject these inductive
-priors about molecules into the model architecture itself, as the EDM paper had demonstrated [1]. Their usefulness is further supported
+element type, can then be encoded into the embedding of a node alongside it's position $\mathbf{x}_i \in \mathcal{R}^3$. The previously explained E(3) equivariance property can be used as an inductive prior that improves generalization, and EGNNs are a powerful tool which injects these priors about molecules into the model architecture itself, as the EDM paper had demonstrated [1]. Their usefulness is further supported
 by EGNNs beating similar non-equivariant Graph Convolution Networks on molecular generation tasks [27].
 
-The E(n) EGNN is a special type of message-passing Graph Neural Network (GNN) [31] with explicit rotation
-and translation equivariance baked in. A traditional message-passing GNN consists of several layers, each of which
+The E(n) EGNN is a special type of message-passing Graph Neural Network (GNN) [31] with explicit rotation and translation equivariance baked in. A traditional message-passing GNN consists of several layers, each of which
 updates the representation of each node, using the information in nearby nodes.
 
 <p align="center">
@@ -796,3 +800,5 @@ Anthonis: Consistency models
 [30] Ruddigkeit, L., van Deursen, R., Blum, L. C. & Reymond, J.-L. (2012). Enumeration of 166 billion organic small molecules in the chemical universe database GDB-17. J. Chem. Inf. Model. 52, 2864–2875.
 
 [31] Gilmer, J., Schoenholz, S. S., Riley, P. F., Vinyals, O., & Dahl, G. E. (2017). Neural message passing for quantum chemistry. In International Conference on Machine Learning (pp. 1263–1272). PMLR.
+
+[32] Serre, J.-P. (1977). Linear representations of finite groups (Vol. 42). Springer.
