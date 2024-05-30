@@ -722,7 +722,7 @@ the best case scenario with a large batch size show is figure 11. This low atom 
 the consistency model.
 
 <p align="center">
-  <img src="readme_material/results_consistency_atom_stability.png" alt="Diffusion in nature" width="250" />
+  <img src="readme_material/results_consistency_atom_stability.png" alt="Diffusion in nature" width="350" />
 </p>
 <p align="center">
 Figure 11: Best results for atom stability metric using single-step sampling with consistency models trained on
@@ -742,8 +742,8 @@ We strongly suspect that the inferior performance of the Jax model results from 
 The jax model has a relatively high loss initially, but converges quickly to a comparable value as pytorch model. At the meantime, the atom stability flunctuates a lot while the molecule stability keeps zero. Both metrics, test loss curve and atomic stability can be seen at figure 12. It is possible that we still need some fine-tuning to get a better performance in evaluation metric, since the training process is totally different as can be seen from the loss curve. The atom stability could also be improved by parameters setting since we tested the atom stability in a shorter interval (--test_epoch 2) and smaller batch size (64).
 
 <p align="center">
-  <img src="readme_material/test_loss.png" alt="Test Loss of jax model" width="250" />
-  <img src="readme_material/jax_atom_stab.png" alt="Atom stability of jax model" width="250" />
+  <img src="readme_material/test_loss.png" alt="Test Loss of jax model" width="350" />
+  <img src="readme_material/jax_atom_stab.png" alt="Atom stability of jax model" width="350" />
 </p>
 <p align="center">
 Figure 12: Test Loss curve of jax model (left) and best atom_stability results for jax model (right)
