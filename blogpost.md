@@ -683,8 +683,8 @@ We were able to successfully train EDM as a consistency model in isolation. We a
 loss curves, both in magnitude of the NLL and convergence rate: 
 
 <p align="center">
-  <img src="readme_material/results_edm_orig_train_loss.png" alt="Diffusion in nature" width="250" />
-  <img src="readme_material/results_consistency_train_loss.png" alt="Diffusion in model" width="250" />
+  <img src="readme_material/results_edm_orig_train_loss.png" alt="Diffusion in nature" width="350" />
+  <img src="readme_material/results_consistency_train_loss.png" alt="Diffusion in model" width="350" />
 </p>
 <p align="center">
 Figure nTBA: Training loss curves for original EDM (left), and consistency model EDM (right)
@@ -696,13 +696,13 @@ We achieved similar convergence rates for both val and test losses but with a di
 changed objective:
 
 <p align="center">
-  <img src="readme_material/results_edm_orig_val_loss.png" alt="Diffusion in nature" width="250" />
-  <img src="readme_material/results_consistency_val_loss.png" alt="Diffusion in model" width="250" />
+  <img src="readme_material/results_edm_orig_val_loss.png" alt="Diffusion in nature" width="350" />
+  <img src="readme_material/results_consistency_val_loss.png" alt="Diffusion in model" width="350" />
 </p>
 
 <p align="center">
-  <img src="readme_material/results_edm_orig_test_loss.png" alt="Diffusion in nature" width="250" />
-  <img src="readme_material/results_consistency_test_loss.png" alt="Diffusion in model" width="250" />
+  <img src="readme_material/results_edm_orig_test_loss.png" alt="Diffusion in nature" width="350" />
+  <img src="readme_material/results_consistency_test_loss.png" alt="Diffusion in model" width="350" />
 </p>
 <p align="center">
 Figure nTBA: Val (top) and Test (bottom) loss curves for original EDM (left), and consistency model EDM (right)
