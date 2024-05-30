@@ -739,14 +739,14 @@ Due to time constraints, we were unable to tune either of our models to the leve
 
 We strongly suspect that the inferior performance of the Jax model results from a bug in our code, which we are still attempting to identify. Converting to Jax required changing the architecture of parts of the code, which may have resulted in a bug. The bug may also be specific to our use of Jax: errors such as improper handling of global values, or use of datatypes, can lead to unexpected behavior. Some typo in the reimplementation may also result in the inferior performance. Differences in optimization and initialization may also cause worse performance, although they do not seem to account for a discrepancy of this magnitude. 
 
-The jax model has a relatively high loss initially, but converges quickly to a comparable value as pytorch model. At the meantime, the atom stability flunctuates a lot while the molecule stability keeps zero. It is possible that we still need some fine-tuning to get a better performance in evaluation metric, since the training process is totally different as can be seen from the loss curve. The atom stability could also be improved by parameters setting since we tested the atom stability in a shorter interval (--test_epoch 2) and smaller batch size (64).
+The jax model has a relatively high loss initially, but converges quickly to a comparable value as pytorch model. At the meantime, the atom stability flunctuates a lot while the molecule stability keeps zero. Both metrics, test loss curve and atomic stability can be seen at figure 12. It is possible that we still need some fine-tuning to get a better performance in evaluation metric, since the training process is totally different as can be seen from the loss curve. The atom stability could also be improved by parameters setting since we tested the atom stability in a shorter interval (--test_epoch 2) and smaller batch size (64).
 
 <p align="center">
   <img src="readme_material/test_loss.png" alt="Test Loss of jax model" width="250" />
   <img src="readme_material/jax_atom_stab.png" alt="Atom stability of jax model" width="250" />
 </p>
 <p align="center">
-Figure 12: Test Loss curve of jax model (left) and best atom_stability results for jax model 
+Figure 12: Test Loss curve of jax model (left) and best atom_stability results for jax model (right)
 </p>
 
 <!-- <p align="center">
